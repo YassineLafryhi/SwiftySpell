@@ -1,5 +1,5 @@
-import Foundation
 import AppKit
+import Foundation
 import SwiftSyntax
 import SwiftSyntaxParser
 import Yams
@@ -23,51 +23,51 @@ class SwiftySpellCodeVisitor: SyntaxVisitor {
         protocols.append((protocolName, position))
         return .visitChildren
     }
-    
+
     override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
         let extendedTypeName = node.extendedType.description.trimmingCharacters(in: .whitespacesAndNewlines)
         let position = node.position
         extensions.append((extendedTypeName, position))
         return .visitChildren
     }
-    
+
     override func visit(_ node: TypealiasDeclSyntax) -> SyntaxVisitorContinueKind {
         let typeName = node.identifier.text
         let position = node.position
         typeAliases.append((typeName, position))
         return .visitChildren
     }
-    
+
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
         let enumName = node.identifier.text
         let position = node.position
         enums.append((enumName, position))
         return .visitChildren
     }
-    
+
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
-           for binding in node.bindings {
-               switch binding.pattern {
-               case let identifierPattern:
-                   let position = identifierPattern.position
-                   variables.append((identifierPattern.description, position))
-               }
-           }
-        
+        for binding in node.bindings {
+            switch binding.pattern {
+            case let identifierPattern:
+                let position = identifierPattern.position
+                variables.append((identifierPattern.description, position))
+            }
+        }
+
         let isGlobalOrConstant = !node.isContainedInFunctionBody
-           
-           if isGlobalOrConstant {
-               for binding in node.bindings {
-                   if let identifier = binding.pattern.firstToken?.text {
-                       let position = binding.position
-                       let kind = node.letOrVarKeyword.text
-                       globalOrConstantVariables.append((identifier, position, kind))
-                   }
-               }
-           }
-        
-           return .visitChildren
-       }
+
+        if isGlobalOrConstant {
+            for binding in node.bindings {
+                if let identifier = binding.pattern.firstToken?.text {
+                    let position = binding.position
+                    let kind = node.letOrVarKeyword.text
+                    globalOrConstantVariables.append((identifier, position, kind))
+                }
+            }
+        }
+
+        return .visitChildren
+    }
 
     override func visit(_ node: StringLiteralExprSyntax) -> SyntaxVisitorContinueKind {
         let stringLiteral = node.description.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
@@ -76,14 +76,12 @@ class SwiftySpellCodeVisitor: SyntaxVisitor {
         return .visitChildren
     }
 
-
     override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
         let className = node.identifier.text
         let position = node.position
         classes.append((className, position))
         return .visitChildren
     }
-
 
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
         let structName = node.identifier.text
@@ -92,53 +90,50 @@ class SwiftySpellCodeVisitor: SyntaxVisitor {
         return .visitChildren
     }
 
-
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
         let functionName = node.identifier.text
         if isCFunction(name: functionName) {
-                   return .skipChildren
-               }
-        
+            return .skipChildren
+        }
+
         let position = node.position
         functions.append((functionName, position))
-        
+
         for parameter in node.signature.input.parameterList {
             let paramName = parameter.firstName?.text ?? ""
             let position = parameter.position
             functionParameters.append((paramName, position))
         }
-        
+
         return .visitChildren
     }
-    
-    private func isCFunction(name: String) -> Bool {
-            return name.hasPrefix("c_") || name.hasPrefix("C_")
-        }
 
+    private func isCFunction(name: String) -> Bool {
+        return name.hasPrefix("c_") || name.hasPrefix("C_")
+    }
 }
 
 class SwiftySpellChecker {
-    
     var ignoreList: Set<String> = []
     var excludePatterns: [NSRegularExpression] = []
 
     init(ignoreList: Set<String>, excludePatterns: [String]) {
-            self.ignoreList = ignoreList
-            self.excludePatterns = excludePatterns.compactMap { pattern in
-                try? NSRegularExpression(pattern: pattern, options: [])
+        self.ignoreList = ignoreList
+        self.excludePatterns = excludePatterns.compactMap { pattern in
+            try? NSRegularExpression(pattern: pattern, options: [])
+        }
+    }
+
+    func shouldExclude(word: String) -> Bool {
+        for pattern in excludePatterns {
+            let range = NSRange(location: 0, length: word.utf16.count)
+            if pattern.firstMatch(in: word, options: [], range: range) != nil {
+                return true
             }
         }
-    
-    func shouldExclude(word: String) -> Bool {
-           for pattern in excludePatterns {
-               let range = NSRange(location: 0, length: word.utf16.count)
-               if pattern.firstMatch(in: word, options: [], range: range) != nil {
-                   return true
-               }
-           }
-           return false
-       }
-    
+        return false
+    }
+
     func checkAndSuggestCorrections(text: String) -> [String: [String]] {
         let checker = NSSpellChecker.shared
         var corrections: [String: [String]] = [:]
@@ -175,7 +170,6 @@ class SwiftySpellChecker {
     }
 }
 
-
 class SwiftySpellConfiguration {
     var ignoreList: Set<String> = []
     var excludePatterns: [String] = []
@@ -202,16 +196,15 @@ class SwiftySpellConfiguration {
 }
 
 class SwiftySpellCLI {
-    
     let fileManager = FileManager.default
-       let config: SwiftySpellConfiguration
-       let checker: SwiftySpellChecker
+    let config: SwiftySpellConfiguration
+    let checker: SwiftySpellChecker
 
-       init(configFilePath: String) {
-           config = SwiftySpellConfiguration(configFilePath: configFilePath)
-           checker = SwiftySpellChecker(ignoreList: config.ignoreList, excludePatterns: config.excludePatterns)
-       }
-    
+    init(configFilePath: String) {
+        config = SwiftySpellConfiguration(configFilePath: configFilePath)
+        checker = SwiftySpellChecker(ignoreList: config.ignoreList, excludePatterns: config.excludePatterns)
+    }
+
     func run(for directoryPath: String) {
         do {
             let swiftFiles = try fetchSwiftFiles(from: directoryPath)
@@ -222,7 +215,7 @@ class SwiftySpellCLI {
             print("Error: \(error)")
         }
     }
-    
+
     private func fetchSwiftFiles(from directory: String) throws -> [URL] {
         let directoryURL = URL(fileURLWithPath: directory)
         let resourceKeys: [URLResourceKey] = [.creationDateKey, .isDirectoryKey]
@@ -238,7 +231,7 @@ class SwiftySpellCLI {
                     continue
                 }
             } else {
-                if fileURL.pathExtension == "swift" && !shouldExclude(file: fileURL) {
+                if fileURL.pathExtension == "swift", !shouldExclude(file: fileURL) {
                     swiftFiles.append(fileURL)
                 }
             }
@@ -268,39 +261,38 @@ class SwiftySpellCLI {
         let sourceFile = try SyntaxParser.parse(url)
         let visitor = SwiftySpellCodeVisitor(viewMode: .all)
         visitor.walk(sourceFile)
-        
+
         let sourceLocationConverter = SourceLocationConverter(file: url.path, tree: sourceFile)
         checkSpelling(in: visitor, filePath: url.path, sourceLocationConverter: sourceLocationConverter)
     }
-    
+
     private func checkSpelling(in visitor: SwiftySpellCodeVisitor, filePath: String, sourceLocationConverter: SourceLocationConverter) {
-        
         for (identifier, position, kind) in visitor.globalOrConstantVariables {
-                if kind == "let" || kind == "var" {
-                    processSpelling(for: identifier, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
-                }
+            if kind == "let" || kind == "var" {
+                processSpelling(for: identifier, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
             }
-        
+        }
+
         for (variable, position) in visitor.variables {
             processSpelling(for: variable, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
         }
-        
+
         for (paramName, position) in visitor.functionParameters {
-               processSpelling(for: paramName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
-           }
-        
+            processSpelling(for: paramName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
+        }
+
         for (extendedTypeName, position) in visitor.extensions {
-               processSpelling(for: extendedTypeName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
-           }
+            processSpelling(for: extendedTypeName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
+        }
         for (protocolName, position) in visitor.protocols {
-                processSpelling(for: protocolName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
-            }
+            processSpelling(for: protocolName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
+        }
         for (typeName, position) in visitor.typeAliases {
-               processSpelling(for: typeName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
-           }
+            processSpelling(for: typeName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
+        }
         for (enumName, position) in visitor.enums {
-               processSpelling(for: enumName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
-           }
+            processSpelling(for: enumName, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
+        }
         for (string, position) in visitor.strings {
             processSpelling(for: string, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
         }
@@ -310,22 +302,23 @@ class SwiftySpellCLI {
         for (aStruct, position) in visitor.structs {
             processSpelling(for: aStruct, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
         }
-        for (function, position) in visitor.functions{
+        for (function, position) in visitor.functions {
             processSpelling(for: function, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
         }
     }
+
     func getFileName(from filePath: String) -> String {
         let fileURL = URL(fileURLWithPath: filePath)
         return fileURL.lastPathComponent
     }
-    
+
     func splitCamelCaseString(_ input: String) -> [String] {
         var words: [String] = []
-        var currentWord: String = ""
+        var currentWord = ""
         for character in input {
-            if character.isUppercase && !currentWord.isEmpty {
+            if character.isUppercase, !currentWord.isEmpty {
                 words.append(currentWord)
-                currentWord = String(character)/*.lowercased()*/
+                currentWord = String(character) /* .lowercased() */
             } else {
                 currentWord += String(character)
             }
@@ -335,19 +328,20 @@ class SwiftySpellCLI {
         }
         return words
     }
+
     private func processSpelling(for word: String, position: AbsolutePosition, filePath: String, sourceLocationConverter: SourceLocationConverter) {
         let sourceLocation = sourceLocationConverter.location(for: position)
         let line = sourceLocation.line ?? 0
         let column = sourceLocation.column ?? 0
 
         let allWords = splitCamelCaseString(word)
-        
+
         for aWord in allWords {
             let corrections = checker.checkAndSuggestCorrections(text: aWord)
             if corrections.count > 0 {
                 for (misspelledWord, suggestions) in corrections {
                     // TODO: Remove "_" from suggestions array
-                    //print("\(filePath):\(line):\(column): warning: '\(misspelledWord)' may be misspelled, Suggestions: \(suggestions)")
+                    // print("\(filePath):\(line):\(column): warning: '\(misspelledWord)' may be misspelled, Suggestions: \(suggestions)")
                     print("\(filePath):\(line):\(column): warning: '\(misspelledWord)' may be misspelled !")
                 }
             }
@@ -357,7 +351,7 @@ class SwiftySpellCLI {
 
 extension String {
     func matches(_ pattern: String) -> Bool {
-        return self.range(of: pattern, options: .regularExpression) != nil
+        return range(of: pattern, options: .regularExpression) != nil
     }
 }
 
@@ -374,7 +368,7 @@ extension SyntaxProtocol {
     }
 }
 
-let arguments  = CommandLine.arguments
+let arguments = CommandLine.arguments
 guard arguments.count > 1 else {
     print("error: SwiftySpell: Missing project path argument.")
     exit(1)
