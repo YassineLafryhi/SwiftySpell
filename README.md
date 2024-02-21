@@ -1,13 +1,20 @@
 # SwiftySpell
 > A tool for checking spelling in Swift code
 
-![](https://img.shields.io/badge/license-Apache-brown)
+![](https://img.shields.io/badge/license-Apache--2.0-brown)
 ![](https://img.shields.io/badge/version-0.9.0-orange)
 ![](https://img.shields.io/badge/SwiftSyntax-508.0.1-purple)
 ![](https://img.shields.io/badge/Yams-5.0.6-red)
 ![](https://img.shields.io/badge/Xcode-15.2-blue)
 
 ## Installation
+### Using CocoaPods
+To install SwiftySpell using CocoaPods, add the following line to your `Podfile`, then run `pod install`:
+```ruby
+pod 'SwiftySpell'
+```
+
+### Manually
 To install SwiftySpell, you can run the following commands:
 
 ```bash
@@ -48,6 +55,14 @@ excludeDirectories:
 Integrate SwiftySpell into your Xcode project to get warnings displayed in the issue navigator.
 
 To do so, select the project in the file navigator, then select the primary app target, and go to Build Phases. Click the + and select "New Run Script Phase". Insert the following script:
+> If installed using CocoaPods :
+
+```shell
+"${PODS_ROOT}/SwiftySpell/SwiftySpell" "${SRCROOT}"
+```
+
+> If installed manually :
+
 ```shell
 if which swiftyspell >/dev/null; then
   swiftyspell "${SRCROOT}"
