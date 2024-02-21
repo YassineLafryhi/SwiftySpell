@@ -34,6 +34,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C2B894012B865B62001C10FA /* SwiftySpell.podspec */ = {isa = PBXFileReference; lastKnownFileType = file; path = SwiftySpell.podspec; sourceTree = SOURCE_ROOT; };
 		C2EF5D2D2B83CB7400112859 /* SwiftySpell */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SwiftySpell; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2EF5D302B83CB7400112859 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		C2EF5D6F2B83D87200112859 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -72,6 +73,7 @@
 				C2EF5D712B83F61B00112859 /* Screenshots */,
 				C2EF5D702B83D87200112859 /* LICENSE */,
 				C2EF5D6F2B83D87200112859 /* README.md */,
+				C2B894012B865B62001C10FA /* SwiftySpell.podspec */,
 				C2EF5D2E2B83CB7400112859 /* Products */,
 			);
 			sourceTree = "<group>";
