@@ -34,7 +34,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		C2B894012B865B62001C10FA /* SwiftySpell.podspec */ = {isa = PBXFileReference; lastKnownFileType = file; path = SwiftySpell.podspec; sourceTree = SOURCE_ROOT; };
+		C2B894012B865B62001C10FA /* SwiftySpell.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftySpell.podspec; sourceTree = SOURCE_ROOT; };
 		C2EF5D2D2B83CB7400112859 /* SwiftySpell */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SwiftySpell; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2EF5D302B83CB7400112859 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		C2EF5D6F2B83D87200112859 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -310,6 +310,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = V469MQTZQY;
 				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.yassinelafryhi.SwiftySpell;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -321,6 +322,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = V469MQTZQY;
 				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.yassinelafryhi.SwiftySpell;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
