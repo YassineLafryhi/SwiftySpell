@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
   s.version                   = "0.9.2"
   s.summary                   = 'A tool for checking spelling in Swift code.'
   s.homepage                  = 'https://github.com/YassineLafryhi/SwiftySpell'
-  s.license                   = { type: 'Apache-2.0', file: 'LICENSE' }
+  s.license                   = { type: 'Apache-2.0', file: 'LICENSE.txt' }
   s.author                    = { 'Yassine Lafryhi' => 'y.lafryhi@gmail.com' }
   s.source                    = { http: "https://github.com/YassineLafryhi/SwiftySpell/releases/download/0.9.2/SwiftySpell-v0.9.2.zip" }
   s.preserve_paths            = 'SwiftySpell'
