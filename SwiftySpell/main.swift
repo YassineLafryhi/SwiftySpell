@@ -5,6 +5,7 @@
 //  Created by Yassine Lafryhi on 19/2/2024.
 //
 
+import AppKit
 import Commander
 import Foundation
 import Yams
@@ -65,7 +66,17 @@ internal let checkCommand = command(
     swiftySpellCLI.run(for: path)
 }
 
+internal let languagesCommand = command {
+    let supportedLanguages = NSSpellChecker.shared.availableLanguages
+
+    Utilities.printInColors("Supported languages:", color: .green, style: .bold)
+    for language in supportedLanguages {
+        Utilities.printInColors("  - \(language)", color: .blue, style: .bold)
+    }
+}
+
 internal let main = Group {
+    $0.addCommand("languages", "List supported languages.", languagesCommand)
     $0.addCommand("init", "Initialize a new \(Constants.configFileName) file with sample configuration.", initCommand)
     $0.addCommand("check", "Start SwiftySpell.", checkCommand)
 }

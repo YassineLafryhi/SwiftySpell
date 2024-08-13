@@ -1,10 +1,11 @@
 # SwiftySpell
 > A tool for checking spelling in Swift code
 
-![](https://img.shields.io/badge/license-Apache--2.0-brown)
-![](https://img.shields.io/badge/version-0.9.0-orange)
+![](https://img.shields.io/badge/license-MIT-brown)
+![](https://img.shields.io/badge/version-0.9.4-orange)
 ![](https://img.shields.io/badge/SwiftSyntax-508.0.1-purple)
 ![](https://img.shields.io/badge/Yams-5.0.6-red)
+![](https://img.shields.io/badge/Commander-0.9.1-green)
 ![](https://img.shields.io/badge/Xcode-15.2-blue)
 
 ## Installation
@@ -15,22 +16,30 @@ pod 'SwiftySpell'
 ```
 
 ### Manually
-To install SwiftySpell, you can run the following commands:
+To install SwiftySpell manually, you can run the following commands:
 
 ```bash
 cd ~/Downloads
-wget https://github.com/YassineLafryhi/SwiftySpell/releases/download/0.9.0/SwiftySpell-v0.9.0
+wget https://github.com/YassineLafryhi/SwiftySpell/releases/download/0.9.4/SwiftySpell-v0.9.4.zip
+unzip SwiftySpell-v0.9.4.zip
 sudo mkdir -p /usr/local/bin
-sudo mv SwiftySpell-v0.9.0 /usr/local/bin/swiftyspell
+sudo mv swiftyspell /usr/local/bin/swiftyspell
 sudo chmod +x /usr/local/bin/swiftyspell
 ```
 
 ## Configuration
 
-Configure SwiftySpell by adding a `.swiftyspell.yml` file inside the directory you'll run SwiftySpell from.
+> [!NOTE]
+> `SwiftySpell` supports the same languages as the `NSSpellChecker` class from AppKit. To see the list of supported languages, run the following command: `swiftyspell languages`.
+
+Configure SwiftySpell by running `swiftyspell init` command inside the project folder, then edit the generated `.swiftyspell.yml` configuration file.
 This is an example of the configuration file:
 
 ```yml
+# Languages to check
+languages:
+  - en
+
 # Words to ignore
 ignoreList:
   - iOS
@@ -58,14 +67,14 @@ To do so, select the project in the file navigator, then select the primary app 
 > If installed using CocoaPods :
 
 ```shell
-"${PODS_ROOT}/SwiftySpell/SwiftySpell" "${SRCROOT}"
+"${PODS_ROOT}/SwiftySpell/SwiftySpell" check "${SRCROOT}"
 ```
 
 > If installed manually :
 
 ```shell
 if which swiftyspell >/dev/null; then
-  swiftyspell "${SRCROOT}"
+  swiftyspell check "${SRCROOT}"
 else
   echo "warning: SwiftySpell is not installed, download it from: https://github.com/YassineLafryhi/SwiftySpell"
 fi
@@ -81,19 +90,19 @@ An example of the warnings displayed in Xcode:
 ### Command Line
 Run SwiftySpell from the command line by navigating to the directory containing the Swift project you want to check and running the following command:
 ```shell
-swiftyspell .
+swiftyspell check .
 ```
 
 ### As a pre-commit git hook
 You can use SwiftySpell as a pre-commit git hook to check spelling before committing your changes. To do so, add the following to the `.git/hooks/pre-commit` file:
 ```shell
 #!/bin/sh
-if [ -n "$(swiftyspell .)" ]; then
+if [ -n "$(swiftyspell check .)" ]; then
   echo "Spelling errors found. Please fix them before committing."
   exit 1
 fi
 ```
-  
+
 ## How to build
 
 To build SwiftySpell from source, run the following commands:
@@ -117,4 +126,4 @@ Contributions are what make the open source community such an amazing place to b
 5. Open a Pull Request
 
 ## License
-[Apache License 2.0](https://choosealicense.com/licenses/apache-2.0)
+[MIT License](https://choosealicense.com/licenses/mit)

@@ -42,6 +42,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C204C5D42C6BE0E60093E216 /* .swiftyspell.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftyspell.yml; sourceTree = "<group>"; };
+		C204C5D52C6BE0F40093E216 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
+		C204C5D62C6BE1020093E216 /* .swiftformat */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
+		C204C5D72C6BE1140093E216 /* .periphery.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .periphery.yml; sourceTree = "<group>"; };
 		C2B894012B865B62001C10FA /* SwiftySpell.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftySpell.podspec; sourceTree = SOURCE_ROOT; };
 		C2EF5D2D2B83CB7400112859 /* SwiftySpell */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SwiftySpell; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2EF5D302B83CB7400112859 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -87,6 +91,10 @@
 			children = (
 				C2EF5D2F2B83CB7400112859 /* SwiftySpell */,
 				C2EF5D712B83F61B00112859 /* Screenshots */,
+				C204C5D72C6BE1140093E216 /* .periphery.yml */,
+				C204C5D62C6BE1020093E216 /* .swiftformat */,
+				C204C5D52C6BE0F40093E216 /* .swiftlint.yml */,
+				C204C5D42C6BE0E60093E216 /* .swiftyspell.yml */,
 				C2EF5D6F2B83D87200112859 /* README.md */,
 				C2F684EE2C67E91D00D39246 /* LICENSE.txt */,
 				C2B894012B865B62001C10FA /* SwiftySpell.podspec */,
