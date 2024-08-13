@@ -120,6 +120,7 @@ internal class SwiftySpellCLI {
                 filePath: filePath,
                 sourceLocationConverter: sourceLocationConverter)
         }
+
         for (protocolName, position) in visitor.protocols {
             processSpelling(
                 for: protocolName,
@@ -127,6 +128,7 @@ internal class SwiftySpellCLI {
                 filePath: filePath,
                 sourceLocationConverter: sourceLocationConverter)
         }
+
         for (typeName, position) in visitor.typeAliases {
             processSpelling(
                 for: typeName,
@@ -134,6 +136,7 @@ internal class SwiftySpellCLI {
                 filePath: filePath,
                 sourceLocationConverter: sourceLocationConverter)
         }
+
         for (enumName, position) in visitor.enums {
             processSpelling(
                 for: enumName,
@@ -141,6 +144,15 @@ internal class SwiftySpellCLI {
                 filePath: filePath,
                 sourceLocationConverter: sourceLocationConverter)
         }
+
+        for (caseName, position) in visitor.enumCases {
+            processSpelling(
+                for: caseName,
+                position: position,
+                filePath: filePath,
+                sourceLocationConverter: sourceLocationConverter)
+        }
+
         for (string, position) in visitor.strings {
             let trimmedString = string.trimmingCharacters(in: .whitespaces)
 
@@ -158,9 +170,11 @@ internal class SwiftySpellCLI {
                 }
             }
         }
+
         for (aClass, position) in visitor.classes {
             processSpelling(for: aClass, position: position, filePath: filePath, sourceLocationConverter: sourceLocationConverter)
         }
+
         for (aStruct, position) in visitor.structs {
             processSpelling(
                 for: aStruct,
@@ -168,6 +182,7 @@ internal class SwiftySpellCLI {
                 filePath: filePath,
                 sourceLocationConverter: sourceLocationConverter)
         }
+
         for (function, position) in visitor.functions {
             processSpelling(
                 for: function,

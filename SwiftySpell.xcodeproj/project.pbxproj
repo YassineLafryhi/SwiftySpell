@@ -46,6 +46,7 @@
 		C204C5D52C6BE0F40093E216 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
 		C204C5D62C6BE1020093E216 /* .swiftformat */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
 		C204C5D72C6BE1140093E216 /* .periphery.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .periphery.yml; sourceTree = "<group>"; };
+		C204C5DB2C6BF0710093E216 /* TestExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestExample.swift; sourceTree = "<group>"; };
 		C2B894012B865B62001C10FA /* SwiftySpell.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftySpell.podspec; sourceTree = SOURCE_ROOT; };
 		C2EF5D2D2B83CB7400112859 /* SwiftySpell */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SwiftySpell; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2EF5D302B83CB7400112859 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -86,10 +87,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C204C5DA2C6BF0500093E216 /* SwiftySpellTests */ = {
+			isa = PBXGroup;
+			children = (
+				C204C5DB2C6BF0710093E216 /* TestExample.swift */,
+			);
+			path = SwiftySpellTests;
+			sourceTree = "<group>";
+		};
 		C2EF5D242B83CB7400112859 = {
 			isa = PBXGroup;
 			children = (
 				C2EF5D2F2B83CB7400112859 /* SwiftySpell */,
+				C204C5DA2C6BF0500093E216 /* SwiftySpellTests */,
 				C2EF5D712B83F61B00112859 /* Screenshots */,
 				C204C5D72C6BE1140093E216 /* .periphery.yml */,
 				C204C5D62C6BE1020093E216 /* .swiftformat */,

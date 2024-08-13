@@ -16,6 +16,7 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     var functions: [(String, AbsolutePosition)] = []
     var strings: [(String, AbsolutePosition)] = []
     var enums: [(String, AbsolutePosition)] = []
+    var enumCases: [(String, AbsolutePosition)] = []
     var typeAliases: [(String, AbsolutePosition)] = []
     var protocols: [(String, AbsolutePosition)] = []
     var extensions: [(String, AbsolutePosition)] = []
@@ -46,6 +47,15 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
         let enumName = node.identifier.text
         let position = node.position
         enums.append((enumName, position))
+        return .visitChildren
+    }
+
+    override func visit(_ node: EnumCaseDeclSyntax) -> SyntaxVisitorContinueKind {
+        for element in node.elements {
+            let caseName = element.identifier.text
+            let position = element.position
+            enumCases.append((caseName, position))
+        }
         return .visitChildren
     }
 
