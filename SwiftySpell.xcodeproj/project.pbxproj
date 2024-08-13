@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C204C5CF2C6BC8C80093E216 /* Commander in Frameworks */ = {isa = PBXBuildFile; productRef = C204C5CE2C6BC8C80093E216 /* Commander */; };
 		C2EF5D312B83CB7400112859 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2EF5D302B83CB7400112859 /* main.swift */; };
 		C2EF5D592B83CDBD00112859 /* IDEUtils in Frameworks */ = {isa = PBXBuildFile; productRef = C2EF5D582B83CDBD00112859 /* IDEUtils */; };
 		C2EF5D5B2B83CDBD00112859 /* SwiftDiagnostics in Frameworks */ = {isa = PBXBuildFile; productRef = C2EF5D5A2B83CDBD00112859 /* SwiftDiagnostics */; };
@@ -19,6 +20,13 @@
 		C2EF5D692B83CDBD00112859 /* SwiftSyntaxParser in Frameworks */ = {isa = PBXBuildFile; productRef = C2EF5D682B83CDBD00112859 /* SwiftSyntaxParser */; };
 		C2EF5D6B2B83CDBD00112859 /* _SwiftSyntaxMacros in Frameworks */ = {isa = PBXBuildFile; productRef = C2EF5D6A2B83CDBD00112859 /* _SwiftSyntaxMacros */; };
 		C2EF5D6E2B83CDC600112859 /* Yams in Frameworks */ = {isa = PBXBuildFile; productRef = C2EF5D6D2B83CDC600112859 /* Yams */; };
+		C2F684F02C68109B00D39246 /* SwiftySpellCodeVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F684EF2C68109B00D39246 /* SwiftySpellCodeVisitor.swift */; };
+		C2F684F22C6810CB00D39246 /* SwiftySpellChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F684F12C6810CB00D39246 /* SwiftySpellChecker.swift */; };
+		C2F684F42C6810EB00D39246 /* SwiftySpellConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F684F32C6810EB00D39246 /* SwiftySpellConfiguration.swift */; };
+		C2F684F62C68114F00D39246 /* SwiftySpellCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F684F52C68114F00D39246 /* SwiftySpellCLI.swift */; };
+		C2F684F82C68118200D39246 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F684F72C68118200D39246 /* Extensions.swift */; };
+		C2F684FA2C68124B00D39246 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F684F92C68124B00D39246 /* Constants.swift */; };
+		C2F684FC2C68136700D39246 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F684FB2C68136700D39246 /* Utilities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -38,10 +46,17 @@
 		C2EF5D2D2B83CB7400112859 /* SwiftySpell */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SwiftySpell; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2EF5D302B83CB7400112859 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		C2EF5D6F2B83D87200112859 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		C2EF5D702B83D87200112859 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		C2EF5D722B83F61B00112859 /* Screenshot1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot1.png; sourceTree = "<group>"; };
 		C2EF5D732B83F61B00112859 /* Screenshot2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot2.png; sourceTree = "<group>"; };
 		C2EF5D742B83F61B00112859 /* Screenshot3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot3.png; sourceTree = "<group>"; };
+		C2F684EE2C67E91D00D39246 /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		C2F684EF2C68109B00D39246 /* SwiftySpellCodeVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftySpellCodeVisitor.swift; sourceTree = "<group>"; };
+		C2F684F12C6810CB00D39246 /* SwiftySpellChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftySpellChecker.swift; sourceTree = "<group>"; };
+		C2F684F32C6810EB00D39246 /* SwiftySpellConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftySpellConfiguration.swift; sourceTree = "<group>"; };
+		C2F684F52C68114F00D39246 /* SwiftySpellCLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftySpellCLI.swift; sourceTree = "<group>"; };
+		C2F684F72C68118200D39246 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		C2F684F92C68124B00D39246 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C2F684FB2C68136700D39246 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +71,7 @@
 				C2EF5D692B83CDBD00112859 /* SwiftSyntaxParser in Frameworks */,
 				C2EF5D652B83CDBD00112859 /* SwiftSyntax in Frameworks */,
 				C2EF5D612B83CDBD00112859 /* SwiftParserDiagnostics in Frameworks */,
+				C204C5CF2C6BC8C80093E216 /* Commander in Frameworks */,
 				C2EF5D672B83CDBD00112859 /* SwiftSyntaxBuilder in Frameworks */,
 				C2EF5D632B83CDBD00112859 /* SwiftRefactor in Frameworks */,
 				C2EF5D6E2B83CDC600112859 /* Yams in Frameworks */,
@@ -71,8 +87,8 @@
 			children = (
 				C2EF5D2F2B83CB7400112859 /* SwiftySpell */,
 				C2EF5D712B83F61B00112859 /* Screenshots */,
-				C2EF5D702B83D87200112859 /* LICENSE */,
 				C2EF5D6F2B83D87200112859 /* README.md */,
+				C2F684EE2C67E91D00D39246 /* LICENSE.txt */,
 				C2B894012B865B62001C10FA /* SwiftySpell.podspec */,
 				C2EF5D2E2B83CB7400112859 /* Products */,
 			);
@@ -90,6 +106,13 @@
 			isa = PBXGroup;
 			children = (
 				C2EF5D302B83CB7400112859 /* main.swift */,
+				C2F684EF2C68109B00D39246 /* SwiftySpellCodeVisitor.swift */,
+				C2F684F12C6810CB00D39246 /* SwiftySpellChecker.swift */,
+				C2F684F32C6810EB00D39246 /* SwiftySpellConfiguration.swift */,
+				C2F684F52C68114F00D39246 /* SwiftySpellCLI.swift */,
+				C2F684F72C68118200D39246 /* Extensions.swift */,
+				C2F684F92C68124B00D39246 /* Constants.swift */,
+				C2F684FB2C68136700D39246 /* Utilities.swift */,
 			);
 			path = SwiftySpell;
 			sourceTree = "<group>";
@@ -111,6 +134,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C2EF5D342B83CB7400112859 /* Build configuration list for PBXNativeTarget "SwiftySpell" */;
 			buildPhases = (
+				C204C5D02C6BD2A60093E216 /* Format Code With SwiftFormat */,
+				C204C5D12C6BD30C0093E216 /* Lint Code With SwiftLint */,
+				C204C5D32C6BD3A30093E216 /* Identify Unused Code With Periphery */,
+				C204C5D22C6BD3830093E216 /* Check Spelling With SwiftySpell */,
 				C2EF5D292B83CB7400112859 /* Sources */,
 				C2EF5D2A2B83CB7400112859 /* Frameworks */,
 				C2EF5D2B2B83CB7400112859 /* CopyFiles */,
@@ -132,6 +159,7 @@
 				C2EF5D682B83CDBD00112859 /* SwiftSyntaxParser */,
 				C2EF5D6A2B83CDBD00112859 /* _SwiftSyntaxMacros */,
 				C2EF5D6D2B83CDC600112859 /* Yams */,
+				C204C5CE2C6BC8C80093E216 /* Commander */,
 			);
 			productName = SwiftySpell;
 			productReference = C2EF5D2D2B83CB7400112859 /* SwiftySpell */;
@@ -164,6 +192,7 @@
 			packageReferences = (
 				C2EF5D572B83CDBD00112859 /* XCRemoteSwiftPackageReference "swift-syntax" */,
 				C2EF5D6C2B83CDC600112859 /* XCRemoteSwiftPackageReference "Yams" */,
+				C204C5CD2C6BC8C80093E216 /* XCRemoteSwiftPackageReference "Commander" */,
 			);
 			productRefGroup = C2EF5D2E2B83CB7400112859 /* Products */;
 			projectDirPath = "";
@@ -174,12 +203,98 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		C204C5D02C6BD2A60093E216 /* Format Code With SwiftFormat */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Format Code With SwiftFormat";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/opt/homebrew/bin/swiftformat \"${SRCROOT}\" --cache ignore\n";
+		};
+		C204C5D12C6BD30C0093E216 /* Lint Code With SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Lint Code With SwiftLint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/opt/homebrew/bin/swiftlint --fix && /opt/homebrew/bin/swiftlint\n";
+		};
+		C204C5D22C6BD3830093E216 /* Check Spelling With SwiftySpell */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Check Spelling With SwiftySpell";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "swiftyspell check \"${SRCROOT}\"\n";
+		};
+		C204C5D32C6BD3A30093E216 /* Identify Unused Code With Periphery */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Identify Unused Code With Periphery";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f \"/tmp/skip_periphery.txt\" ]; then\n    rm -f \"/tmp/skip_periphery.txt\"\n    exit 0\nfi\ntouch \"/tmp/skip_periphery.txt\"\n/opt/homebrew/bin/periphery scan\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		C2EF5D292B83CB7400112859 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2F684F02C68109B00D39246 /* SwiftySpellCodeVisitor.swift in Sources */,
+				C2F684F82C68118200D39246 /* Extensions.swift in Sources */,
+				C2F684F62C68114F00D39246 /* SwiftySpellCLI.swift in Sources */,
+				C2F684F22C6810CB00D39246 /* SwiftySpellChecker.swift in Sources */,
+				C2F684FA2C68124B00D39246 /* Constants.swift in Sources */,
 				C2EF5D312B83CB7400112859 /* main.swift in Sources */,
+				C2F684FC2C68136700D39246 /* Utilities.swift in Sources */,
+				C2F684F42C6810EB00D39246 /* SwiftySpellConfiguration.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,7 +338,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -286,7 +401,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -308,7 +423,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = V469MQTZQY;
+				DEVELOPMENT_TEAM = 55DHYS5FJZ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.yassinelafryhi.SwiftySpell;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -320,7 +435,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = V469MQTZQY;
+				DEVELOPMENT_TEAM = 55DHYS5FJZ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.yassinelafryhi.SwiftySpell;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -352,6 +467,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C204C5CD2C6BC8C80093E216 /* XCRemoteSwiftPackageReference "Commander" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kylef/Commander.git";
+			requirement = {
+				kind = exactVersion;
+				version = 0.9.1;
+			};
+		};
 		C2EF5D572B83CDBD00112859 /* XCRemoteSwiftPackageReference "swift-syntax" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-syntax.git";
@@ -371,6 +494,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C204C5CE2C6BC8C80093E216 /* Commander */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C204C5CD2C6BC8C80093E216 /* XCRemoteSwiftPackageReference "Commander" */;
+			productName = Commander;
+		};
 		C2EF5D582B83CDBD00112859 /* IDEUtils */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C2EF5D572B83CDBD00112859 /* XCRemoteSwiftPackageReference "swift-syntax" */;

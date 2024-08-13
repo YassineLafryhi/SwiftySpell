@@ -1,5 +1,24 @@
 {
+  "originHash" : "b855f147209f75d0abc1360062b80067d04c5ac0edbda5292404272cd3bb4ba6",
   "pins" : [
+    {
+      "identity" : "commander",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kylef/Commander.git",
+      "state" : {
+        "revision" : "4b6133c3071d521489a80c38fb92d7983f19d438",
+        "version" : "0.9.1"
+      }
+    },
+    {
+      "identity" : "spectre",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kylef/Spectre.git",
+      "state" : {
+        "revision" : "26cc5e9ae0947092c7139ef7ba612e34646086c7",
+        "version" : "0.10.1"
+      }
+    },
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
@@ -19,5 +38,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
