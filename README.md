@@ -2,7 +2,7 @@
 > A tool for checking spelling in Swift code
 
 ![](https://img.shields.io/badge/license-MIT-brown)
-![](https://img.shields.io/badge/version-0.9.5-orange)
+![](https://img.shields.io/badge/version-0.9.6-orange)
 ![](https://img.shields.io/badge/SwiftSyntax-508.0.1-purple)
 ![](https://img.shields.io/badge/Yams-5.0.6-red)
 ![](https://img.shields.io/badge/Commander-0.9.1-green)
@@ -34,6 +34,7 @@ sudo chmod +x /usr/local/bin/swiftyspell
 > `SwiftySpell` supports the same languages as the `NSSpellChecker` class from AppKit. To see the list of supported languages, run the following command: `swiftyspell languages`.
 
 Configure SwiftySpell by running `swiftyspell init` command inside the project folder, then edit the generated `.swiftyspell.yml` configuration file.
+
 This is an example of the configuration file:
 
 ```yml
@@ -82,11 +83,11 @@ fi
 ```
 ![](Screenshots/Screenshot1.png)
 
-An example of the warnings displayed in Xcode:
+Some examples of the warnings displayed in Xcode:
 
-| Warnings on the Editor area      | Warnings on the Issue Navigator  |
-|----------------------------------|----------------------------------|
 | ![](Screenshots/Screenshot2.png) | ![](Screenshots/Screenshot3.png) |
+|----------------------------------|----------------------------------|
+| ![](Screenshots/Screenshot4.png) | ![](Screenshots/Screenshot5.png) |
 
 ### Command Line
 Run SwiftySpell from the command line by navigating to the directory containing the Swift project you want to check and running the following command:

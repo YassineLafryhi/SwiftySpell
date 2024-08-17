@@ -47,13 +47,15 @@
 		C204C5D62C6BE1020093E216 /* .swiftformat */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
 		C204C5D72C6BE1140093E216 /* .periphery.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .periphery.yml; sourceTree = "<group>"; };
 		C204C5DB2C6BF0710093E216 /* TestExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestExample.swift; sourceTree = "<group>"; };
+		C2A7AE6A2C711E00001B3E3D /* Screenshot1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot1.png; sourceTree = "<group>"; };
+		C2A7AE6B2C711E00001B3E3D /* Screenshot2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot2.png; sourceTree = "<group>"; };
+		C2A7AE6C2C711E00001B3E3D /* Screenshot3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot3.png; sourceTree = "<group>"; };
+		C2A7AE6D2C711E00001B3E3D /* Screenshot4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot4.png; sourceTree = "<group>"; };
+		C2A7AE6E2C711E00001B3E3D /* Screenshot5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot5.png; sourceTree = "<group>"; };
 		C2B894012B865B62001C10FA /* SwiftySpell.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftySpell.podspec; sourceTree = SOURCE_ROOT; };
 		C2EF5D2D2B83CB7400112859 /* SwiftySpell */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SwiftySpell; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2EF5D302B83CB7400112859 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		C2EF5D6F2B83D87200112859 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		C2EF5D722B83F61B00112859 /* Screenshot1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot1.png; sourceTree = "<group>"; };
-		C2EF5D732B83F61B00112859 /* Screenshot2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot2.png; sourceTree = "<group>"; };
-		C2EF5D742B83F61B00112859 /* Screenshot3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Screenshot3.png; sourceTree = "<group>"; };
 		C2F684EE2C67E91D00D39246 /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		C2F684EF2C68109B00D39246 /* SwiftySpellCodeVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftySpellCodeVisitor.swift; sourceTree = "<group>"; };
 		C2F684F12C6810CB00D39246 /* SwiftySpellChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftySpellChecker.swift; sourceTree = "<group>"; };
@@ -138,9 +140,11 @@
 		C2EF5D712B83F61B00112859 /* Screenshots */ = {
 			isa = PBXGroup;
 			children = (
-				C2EF5D722B83F61B00112859 /* Screenshot1.png */,
-				C2EF5D732B83F61B00112859 /* Screenshot2.png */,
-				C2EF5D742B83F61B00112859 /* Screenshot3.png */,
+				C2A7AE6A2C711E00001B3E3D /* Screenshot1.png */,
+				C2A7AE6B2C711E00001B3E3D /* Screenshot2.png */,
+				C2A7AE6C2C711E00001B3E3D /* Screenshot3.png */,
+				C2A7AE6D2C711E00001B3E3D /* Screenshot4.png */,
+				C2A7AE6E2C711E00001B3E3D /* Screenshot5.png */,
 			);
 			path = Screenshots;
 			sourceTree = "<group>";
