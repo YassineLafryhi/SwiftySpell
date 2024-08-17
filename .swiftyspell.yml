@@ -18,5 +18,7 @@ excludeDirectories:
 
 # Words to ignore
 ignoreList:
+  - SwiftySpell
   - swifty
   - bhttps
+  - ey

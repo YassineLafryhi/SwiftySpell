@@ -114,15 +114,6 @@ opt_in_rules:
   - weak_delegate
   - xctfail_message
 
-custom_rules:
-  custom_todo:
-    included: ".*.swift"
-    name: "TODO Violation"
-    regex: "(TODO).(?!.*(https&)).(?!.*issues)"
-    match_kinds: comment
-    message: "TODOs must include a link to the github issue."
-    severity: warning
-
 # Rules configuration
 
 closure_spacing:

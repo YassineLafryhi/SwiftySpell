@@ -8,6 +8,7 @@
 import Foundation
 
 internal class Constants {
+    static let currentVersion = "0.9.6"
     static let configFileName = ".swiftyspell.yml"
 
     static let supportingTerms = ["xterm-color", "xterm-256color", "screen", "screen-256color", "ansi", "linux", "vt100"]

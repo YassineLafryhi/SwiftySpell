@@ -75,7 +75,13 @@ internal let languagesCommand = command {
     }
 }
 
+internal let versionCommand = command {
+    let version = Constants.currentVersion
+    Utilities.printInColors("SwiftySpell v\(version)", color: .green, style: .bold)
+}
+
 internal let main = Group {
+    $0.addCommand("version", "Print the current version of SwiftySpell.", versionCommand)
     $0.addCommand("languages", "List supported languages.", languagesCommand)
     $0.addCommand("init", "Initialize a new \(Constants.configFileName) file with sample configuration.", initCommand)
     $0.addCommand("check", "Start SwiftySpell.", checkCommand)

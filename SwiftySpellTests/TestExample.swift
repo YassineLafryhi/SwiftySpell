@@ -8,11 +8,29 @@
 import Foundation
 
 internal enum Accesibility {
-    case alow
+    case allaw
     case privilige
     case acheive
     case recieve
+
+    enum NesstedEnum {
+        case firstCasse
+        case secandCase(imdex: Int)
+
+        enum VearyNesstedEnum {
+            case tirdCasse
+        }
+    }
 }
+
+// This is a one linne comment with some speling mistakes
+
+// This is a annother one line comment with morre spelling mistakes
+
+/*
+ * This is an exmaple of a multiline comment with some speling mistakes,
+ * in diferent lines, that are also dettected by SwiftySpell.
+ */
 
 internal class Testt {
     var assigment: String
@@ -40,6 +58,24 @@ internal class Testt {
     }
 
     class TestMannagger {}
+}
+
+func arrayExample() -> [String] {
+    ["speling", "erors", "evrywhere"]
+}
+
+func dictionaryExample() -> [String: Int] {
+    ["onne": 1, "twoo": 2, "thre": 3]
+}
+
+class SubscriptExample {
+    subscript(imdex: Int) -> Int {
+        imdex * 2
+    }
+}
+
+func genericFunction<Tenplate>(value: Tenplate) -> Tenplate {
+    value
 }
 
 var occurenceCount = 0
