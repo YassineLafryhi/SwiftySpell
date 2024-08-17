@@ -2,7 +2,7 @@
 > A tool for checking spelling in Swift code
 
 ![](https://img.shields.io/badge/license-MIT-brown)
-![](https://img.shields.io/badge/version-0.9.4-orange)
+![](https://img.shields.io/badge/version-0.9.5-orange)
 ![](https://img.shields.io/badge/SwiftSyntax-508.0.1-purple)
 ![](https://img.shields.io/badge/Yams-5.0.6-red)
 ![](https://img.shields.io/badge/Commander-0.9.1-green)
@@ -20,8 +20,9 @@ To install SwiftySpell manually, you can run the following commands:
 
 ```bash
 cd ~/Downloads
-wget https://github.com/YassineLafryhi/SwiftySpell/releases/download/0.9.4/SwiftySpell-v0.9.4.zip
-unzip SwiftySpell-v0.9.4.zip
+LATEST_RELEASE=$(curl -s https://api.github.com/repos/YassineLafryhi/SwiftySpell/releases/latest | grep tag_name | cut -d '"' -f 4)
+wget "https://github.com/YassineLafryhi/SwiftySpell/releases/download/${LATEST_RELEASE}/SwiftySpell-v${LATEST_RELEASE}.zip"
+unzip "SwiftySpell-v${LATEST_RELEASE}.zip"
 sudo mkdir -p /usr/local/bin
 sudo mv swiftyspell /usr/local/bin/swiftyspell
 sudo chmod +x /usr/local/bin/swiftyspell

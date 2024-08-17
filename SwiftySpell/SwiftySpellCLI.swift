@@ -71,7 +71,7 @@ internal class SwiftySpellCLI {
     }
 
     private func shouldExclude(directory: URL) -> Bool {
-        config.excludeDirectories.contains(where: { directory.path.contains("\($0)") })
+        config.excludeDirectories.contains { directory.path.contains("\($0)") }
     }
 
     private func processFile(_ url: URL) throws {

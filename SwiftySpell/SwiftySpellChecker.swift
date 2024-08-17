@@ -82,8 +82,7 @@ internal class SwiftySpellChecker {
                         forWordRange: misspelledWordRange!,
                         in: text,
                         language: language,
-                        inSpellDocumentWithTag: 0)
-                {
+                        inSpellDocumentWithTag: 0) {
                     allSuggestions.formUnion(suggestions)
                 }
             }

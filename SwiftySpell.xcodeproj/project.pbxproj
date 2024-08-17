@@ -239,7 +239,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/opt/homebrew/bin/swiftformat \"${SRCROOT}\" --cache ignore\n";
+			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]\nthen\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nswiftformat \"${SRCROOT}\" --cache ignore\n";
 		};
 		C204C5D12C6BD30C0093E216 /* Lint Code With SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -258,7 +258,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/opt/homebrew/bin/swiftlint --fix && /opt/homebrew/bin/swiftlint\n";
+			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]\nthen\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nswiftlint --fix && swiftlint\n";
 		};
 		C204C5D22C6BD3830093E216 /* Check Spelling With SwiftySpell */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -277,7 +277,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "swiftyspell check \"${SRCROOT}\"\n";
+			shellScript = "if which swiftyspell >/dev/null; then\n  swiftyspell check \"${SRCROOT}\"\nelse\n  echo \"warning: SwiftySpell is not installed, download it from: https://github.com/YassineLafryhi/SwiftySpell\"\nfi\n";
 		};
 		C204C5D32C6BD3A30093E216 /* Identify Unused Code With Periphery */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -296,7 +296,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f \"/tmp/skip_periphery.txt\" ]; then\n    rm -f \"/tmp/skip_periphery.txt\"\n    exit 0\nfi\ntouch \"/tmp/skip_periphery.txt\"\n/opt/homebrew/bin/periphery scan\n";
+			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]\nthen\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif [ -f \"/tmp/skip_periphery.txt\" ]; then\n    rm -f \"/tmp/skip_periphery.txt\"\n    exit 0\nfi\ntouch \"/tmp/skip_periphery.txt\"\nperiphery scan\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

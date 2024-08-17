@@ -7,9 +7,9 @@ excluded: # paths to ignore during linting. Takes precedence over `included`.
 
 disabled_rules:
   - explicit_type_interface
+  - explicit_enum_raw_value
 
 opt_in_rules:
-  - explicit_enum_raw_value
   - array_init
   - nimble_operator
   - no_grouping_extension
