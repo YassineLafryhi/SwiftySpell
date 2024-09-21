@@ -11,7 +11,34 @@ internal class Constants {
     static let currentVersion = "0.9.6"
     static let configFileName = ".swiftyspell.yml"
 
-    static let supportingTerms = ["xterm-color", "xterm-256color", "screen", "screen-256color", "ansi", "linux", "vt100"]
+    static let sampleConfig = """
+        # Languages to check
+        languages:
+          - en
+
+        # Directories/Files/Regular expressions to exclude
+        exclude:
+          - Pods
+          - Constants.swift
+
+        # Rules to apply
+        rules:
+          - one_line_comment
+          - multi_line_comment
+
+        # Words/Regular expressions to ignore
+        ignore:
+          - iOS
+        """
+
+    static let swiftKeywords = [
+        "associatedtype", "deinit", "fileprivate", "rethrows", "typealias", "fallthrough",
+        "nonmutating",
+    ]
+
+    static let supportingTerms = [
+        "xterm-color", "xterm-256color", "screen", "screen-256color", "ansi", "linux", "vt100",
+    ]
 
     enum ANSIColor: String {
         case black = "\u{001B}[0;30m"

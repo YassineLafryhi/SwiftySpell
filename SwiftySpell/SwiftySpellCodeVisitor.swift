@@ -133,11 +133,6 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     }
 
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
-        let functionName = node.identifier.text
-        if isCFunction(name: functionName) {
-            return .skipChildren
-        }
-
         functions.append(node)
 
         for parameter in node.signature.input.parameterList {
@@ -235,11 +230,6 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
             dictionaryValues.append((valueName, valuePosition))
         }
         return .visitChildren
-    }
-
-    // TODO: Remove this function and use a Regex instead (configurable in the config file)
-    private func isCFunction(name: String) -> Bool {
-        name.hasPrefix("c_") || name.hasPrefix("C_")
     }
 
     func extractOneLineComments(from filePath: String) {

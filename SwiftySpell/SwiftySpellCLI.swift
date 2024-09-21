@@ -16,7 +16,10 @@ internal class SwiftySpellCLI {
 
     init(configFilePath: String) {
         config = SwiftySpellConfiguration(configFilePath: configFilePath)
-        checker = SwiftySpellChecker(ignoreList: config.ignoreList, excludePatterns: config.excludePatterns)
+        checker = SwiftySpellChecker(
+            ignoredWords: config.ignore,
+            ignoredPatternsOfWords: config.ignoredPatternsOfWords,
+            ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
     }
 
     func run(for directoryPath: String) {
@@ -40,16 +43,18 @@ internal class SwiftySpellCLI {
             options: [.skipsHiddenFiles, .skipsPackageDescendants])
 
         var swiftFiles = [URL]()
-        for case let fileURL as URL in enumerator! {
-            let isDirectory = (try? fileURL.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
-            if isDirectory {
-                if shouldExclude(directory: fileURL) {
-                    enumerator?.skipDescendants()
-                    continue
-                }
-            } else {
-                if fileURL.pathExtension == "swift", !shouldExclude(file: fileURL) {
-                    swiftFiles.append(fileURL)
+        if let enumerator = enumerator {
+            for case let fileURL as URL in enumerator {
+                let isDirectory = (try? fileURL.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
+                if isDirectory {
+                    if shouldExclude(directory: fileURL) {
+                        enumerator.skipDescendants()
+                        continue
+                    }
+                } else {
+                    if fileURL.pathExtension == "swift", !shouldExclude(file: fileURL) {
+                        swiftFiles.append(fileURL)
+                    }
                 }
             }
         }
@@ -57,12 +62,12 @@ internal class SwiftySpellCLI {
     }
 
     private func shouldExclude(file: URL) -> Bool {
-        for pattern in config.excludePatterns
+        for pattern in config.ignoredPatternsOfFilesOrDirectories
             where file.lastPathComponent.range(of: pattern, options: .regularExpression) != nil {
             return true
         }
 
-        if config.excludeFiles.contains(where: { file.lastPathComponent == $0 }) {
+        if config.excludedFiles.contains(where: { file.lastPathComponent == $0 }) {
             return true
         }
 
@@ -70,7 +75,8 @@ internal class SwiftySpellCLI {
     }
 
     private func shouldExclude(directory: URL) -> Bool {
-        config.excludeDirectories.contains { directory.path.contains("\($0)") }
+        // TODO: Use config.ignoredPatternsOfFilesOrDirectories
+        config.excludedDirectories.contains { directory.path.contains("\($0)") }
     }
 
     private func processFile(_ url: URL) throws {
@@ -299,21 +305,25 @@ internal class SwiftySpellCLI {
                 sourceLocationConverter: sourceLocationConverter)
         }
 
-        for (comment, line) in visitor.oneLineComments {
-            processSpelling(
-                for: comment,
-                startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
-                filePath: filePath,
-                sourceLocationConverter: sourceLocationConverter)
-        }
-
-        for multiLineComment in visitor.multiLineComments {
-            for (commentLine, line) in multiLineComment {
+        if config.rules.contains(.oneLineComment) {
+            for (comment, line) in visitor.oneLineComments {
                 processSpelling(
-                    for: commentLine,
+                    for: comment,
                     startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
                     filePath: filePath,
                     sourceLocationConverter: sourceLocationConverter)
+            }
+        }
+
+        if config.rules.contains(.multiLineComment) {
+            for multiLineComment in visitor.multiLineComments {
+                for (commentLine, line) in multiLineComment {
+                    processSpelling(
+                        for: commentLine,
+                        startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
+                        filePath: filePath,
+                        sourceLocationConverter: sourceLocationConverter)
+                }
             }
         }
     }
@@ -352,12 +362,9 @@ internal class SwiftySpellCLI {
             column = getColumn(line: line, identifier: string, filePath: filePath)
         }
 
-        // TODO: Remove this check and use a Regex instead (configurable in the config file)
-        if string.starts(with: "eyJ") {
-            return // JWT tokens
-        }
-
         var currentWordColumn = column
+
+        let string = string.trimmingCharacters(in: .whitespaces)
 
         if string.contains(" ") {
             if string.starts(with: "\"") {
@@ -365,10 +372,13 @@ internal class SwiftySpellCLI {
             }
             let allWords = string.split(separator: " ")
             for word in allWords {
-                currentWordColumn = getColumn(
-                    line: line, identifier: String(word), filePath: filePath)
-                checkWord(word: String(word))
-                // currentWordColumn += word.count
+                let wordParts = splitCamelCaseString(String(word))
+                for part in wordParts {
+                    currentWordColumn = getColumn(
+                        line: line, identifier: part, filePath: filePath)
+                    checkWord(word: part)
+                    // currentWordColumn += word.count
+                }
             }
         } else {
             /* if string.starts(with: "\"") {

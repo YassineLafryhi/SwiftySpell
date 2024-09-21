@@ -9,18 +9,25 @@ import AppKit
 import Foundation
 
 internal class SwiftySpellChecker {
-    var ignoreList: Set<String> = []
-    var excludePatterns: [NSRegularExpression] = []
+    var ignoredWords: Set<String> = []
+    var ignoredPatternsOfWords: [NSRegularExpression] = []
+    var ignoredPatternsOfFilesOrDirectories: [NSRegularExpression] = []
 
-    init(ignoreList: Set<String>, excludePatterns: [String]) {
-        self.ignoreList = ignoreList
-        self.excludePatterns = excludePatterns.compactMap { pattern in
+    init(
+        ignoredWords: Set<String>,
+        ignoredPatternsOfWords: [String],
+        ignoredPatternsOfFilesOrDirectories: [String]) {
+        self.ignoredWords = ignoredWords
+        self.ignoredPatternsOfWords = ignoredPatternsOfWords.compactMap { pattern in
+            try? NSRegularExpression(pattern: pattern, options: [])
+        }
+        self.ignoredPatternsOfFilesOrDirectories = ignoredPatternsOfFilesOrDirectories.compactMap { pattern in
             try? NSRegularExpression(pattern: pattern, options: [])
         }
     }
 
-    func shouldExclude(word: String) -> Bool {
-        for pattern in excludePatterns {
+    func shouldIgnoreWord(word: String) -> Bool {
+        for pattern in ignoredPatternsOfWords {
             let range = NSRange(location: 0, length: word.utf16.count)
             if pattern.firstMatch(in: word, options: [], range: range) != nil {
                 return true
@@ -29,7 +36,7 @@ internal class SwiftySpellChecker {
         return false
     }
 
-    func checkAndSuggestCorrections(text: String, languages: [String]) -> [String: [String]] {
+    func checkAndSuggestCorrections(text: String, languages: Set<String>) -> [String: [String]] {
         let checker = NSSpellChecker.shared
         var corrections: [String: [String]] = [:]
         var searchRange = NSRange(location: 0, length: text.utf16.count)
@@ -51,7 +58,9 @@ internal class SwiftySpellChecker {
                 if result.length > 0 {
                     if misspelledWordRange == nil {
                         misspelledWordRange = NSRange(location: result.location, length: result.length)
-                        misspelledWord = (text as NSString).substring(with: misspelledWordRange!)
+                        if let misspelledWordRange = misspelledWordRange {
+                            misspelledWord = (text as NSString).substring(with: misspelledWordRange)
+                        }
                     }
                 } else {
                     isWordMisspelledInAllLanguages = false
@@ -69,8 +78,12 @@ internal class SwiftySpellChecker {
                 continue
             }
 
-            if ignoreList.contains(misspelledWord) || shouldExclude(word: misspelledWord) {
-                searchRange.location = misspelledWordRange!.location + misspelledWordRange!.length
+            guard let misspelledWordRange = misspelledWordRange else {
+                return corrections
+            }
+
+            if ignoredWords.contains(misspelledWord) || shouldIgnoreWord(word: misspelledWord) {
+                searchRange.location = misspelledWordRange.location + misspelledWordRange.length
                 searchRange.length = text.utf16.count - searchRange.location
                 continue
             }
@@ -79,7 +92,7 @@ internal class SwiftySpellChecker {
             for language in languages {
                 if
                     let suggestions = checker.guesses(
-                        forWordRange: misspelledWordRange!,
+                        forWordRange: misspelledWordRange,
                         in: text,
                         language: language,
                         inSpellDocumentWithTag: 0) {
@@ -93,7 +106,7 @@ internal class SwiftySpellChecker {
             let correctionsForCurrentWord = corrections[misspelledWord] ?? []
             corrections[misspelledWord] = correctionsForCurrentWord
 
-            searchRange.location = misspelledWordRange!.location + misspelledWordRange!.length
+            searchRange.location = misspelledWordRange.location + misspelledWordRange.length
             searchRange.length = text.utf16.count - searchRange.location
         }
         return corrections

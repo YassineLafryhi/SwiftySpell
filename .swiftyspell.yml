@@ -1,24 +1,22 @@
 # Languages to check
 languages:
   - en
+  - en_GB
 
-# Regular expressions to exclude
-excludePatterns:
+# Directories/Files/Regular expressions to exclude
+exclude:
+  - Build
+  - Constants.swift
+
+# Rules to apply
+rules:
+  - one_line_comment
+  - multi_line_comment
+  - swift_keywords
+
+# Words/Regular expressions to ignore
+ignore:
   - \b[0-9a-fA-F]{6}\b
   - \bhttps?:\/\/[^\s]+\b
   - ^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){2,}$
-
-# Files to exclude
-excludeFiles:
-  - Constants.swift
-
-# Directories to exclude
-excludeDirectories:
-  - Build
-
-# Words to ignore
-ignoreList:
-  - SwiftySpell
   - swifty
-  - bhttps
-  - ey

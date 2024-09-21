@@ -5,14 +5,20 @@
 //  Created by Yassine Lafryhi on 10/8/2024.
 //
 
+import Foundation
 import Yams
 
 internal class SwiftySpellConfiguration: Codable {
-    var languages: [String] = []
-    var ignoreList: Set<String> = []
-    var excludePatterns: [String] = []
-    var excludeFiles: [String] = []
-    var excludeDirectories: [String] = []
+    var languages: Set<String> = []
+    var exclude: Set<String> = []
+    var rules: Set<SupportedRule> = []
+    var ignore: Set<String> = []
+
+    var ignoredPatternsOfWords: [String] = []
+    var ignoredPatternsOfFilesOrDirectories: [String] = []
+
+    var excludedFiles: [String] = []
+    var excludedDirectories: [String] = []
 
     init(configFilePath: String) {
         loadConfiguration(from: configFilePath)
@@ -24,27 +30,60 @@ internal class SwiftySpellConfiguration: Codable {
             var duplicates = Set<String>()
             var capitalizedPairs = [(String, String)]()
             if let yaml = try? Yams.load(yaml: fileContents) as? [String: [String]] {
-                languages = yaml["languages"] ?? ["en"]
-                let rawIgnoreList = yaml["ignoreList"] ?? []
-                excludePatterns = yaml["excludePatterns"] ?? []
-                excludeFiles = yaml["excludeFiles"] ?? []
-                excludeDirectories = yaml["excludeDirectories"] ?? []
+                languages = Set(yaml["languages"] ?? ["en"])
+                let rawIgnoreList = yaml["ignore"] ?? []
+                exclude = Set(yaml["exclude"] ?? [])
+                let rulesSet = Set(yaml["rules"] ?? [])
 
-                for word in rawIgnoreList where !ignoreList.insert(word).inserted {
+                for element in rulesSet {
+                    if let rule = SupportedRule(rawValue: element) {
+                        rules.insert(rule)
+                    }
+                }
+
+                var ignoredWords: [String] = []
+
+                for element in rawIgnoreList {
+                    if isValidRegex(element) {
+                        ignoredPatternsOfWords.append(element)
+                    } else {
+                        ignoredWords.append(element)
+                    }
+                }
+
+                for word in ignoredWords where !ignore.insert(word).inserted {
                     duplicates.insert(word)
                 }
 
-                for word in rawIgnoreList {
+                for word in ignoredWords {
                     let capitalizedWord = word.capitalized
 
-                    if ignoreList.contains(capitalizedWord), word != capitalizedWord {
+                    if ignore.contains(capitalizedWord), word != capitalizedWord {
                         capitalizedPairs.append((word, capitalizedWord))
                     }
                 }
 
-                for word in rawIgnoreList {
+                for word in ignoredWords {
                     let capitalizedWord = word.capitalized
-                    ignoreList.insert(capitalizedWord)
+                    ignore.insert(capitalizedWord)
+                }
+
+                for element in exclude {
+                    if isValidRegex(element) {
+                        ignoredPatternsOfFilesOrDirectories.append(element)
+                    } else {
+                        if isFilePath(element) {
+                            excludedFiles.append(element)
+                        } else {
+                            excludedDirectories.append(element)
+                        }
+                    }
+                }
+
+                if rules.contains(.swiftKeywords) {
+                    for keyword in Constants.swiftKeywords {
+                        ignore.insert(keyword)
+                    }
                 }
             }
 
@@ -63,5 +102,35 @@ internal class SwiftySpellConfiguration: Codable {
         } catch {
             Utilities.printError("Error loading configuration: \(error.localizedDescription)")
         }
+    }
+
+    private func isValidRegex(_ pattern: String) -> Bool {
+        let regexSymbols = "[.^$*+?()\\[\\]{}|\\\\]"
+        if pattern.range(of: regexSymbols, options: .regularExpression) == nil {
+            return false
+        }
+
+        do {
+            _ = try NSRegularExpression(pattern: pattern)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    private func isFilePath(_ path: String) -> Bool {
+        path.hasSuffix(".swift")
+    }
+
+    enum SupportedRule: String, Codable, CaseIterable {
+        case oneLineComment = "one_line_comment"
+        case multiLineComment = "multi_line_comment"
+        case swiftKeywords = "swift_keywords"
+
+        // TODO: Add support for these rules
+        // case capitalization
+        // case pluralConsistency = "plural_consistency"
+        // case homophoneCheck = "homophone_check"
+        // case possessiveApostrophe = "possessive_apostrophe"
     }
 }

@@ -83,3 +83,11 @@ var occurenceCount = 0
 internal func definateResult(for input: Int) -> Bool {
     input > 0
 }
+
+let wordsInBritishEnglish = ["colour", "jewellery", "analyse", "defence", "aluminium"]
+
+// let language = "arabic"
+
+let swiftKeywords = [
+    "associatedtype", "deinit", "fileprivate", "rethrows", "typealias", "fallthrough", "nonmutating"
+]

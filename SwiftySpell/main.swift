@@ -11,34 +11,11 @@ import Foundation
 import Yams
 
 internal let initCommand = command {
-    let sampleConfig = """
-        # Languages to check
-        languages:
-          - en
-
-        # Regular expressions to exclude
-        excludePatterns:
-          - \\b[0-9a-fA-F]{6}\\b
-          - \\bhttps?:\\/\\/[^\\s]+\\b
-
-        # Files to exclude
-        excludeFiles:
-          - Constants.swift
-
-        # Directories to exclude
-        excludeDirectories:
-          - Pods
-
-        # Words to ignore
-        ignoreList:
-          - iOS
-        """
-
     let currentPath = FileManager.default.currentDirectoryPath
     let filePath = "\(currentPath)/\(Constants.configFileName)"
 
     do {
-        try sampleConfig.write(toFile: filePath, atomically: true, encoding: .utf8)
+        try Constants.sampleConfig.write(toFile: filePath, atomically: true, encoding: .utf8)
         Utilities.printInColors("\(Constants.configFileName) file has been created successfully.", color: .green, style: .bold)
     } catch {
         Utilities.printInColors("Error creating \(Constants.configFileName) file: \(error)", color: .red, style: .bold)
@@ -75,6 +52,13 @@ internal let languagesCommand = command {
     }
 }
 
+internal let rulesCommand = command {
+    Utilities.printInColors("Supported rules:", color: .green, style: .bold)
+    for rule in SwiftySpellConfiguration.SupportedRule.allCases {
+        Utilities.printInColors("  - \(rule)", color: .blue, style: .bold)
+    }
+}
+
 internal let versionCommand = command {
     let version = Constants.currentVersion
     Utilities.printInColors("SwiftySpell v\(version)", color: .green, style: .bold)
@@ -84,6 +68,7 @@ internal let main = Group {
     $0.addCommand("version", "Print the current version of SwiftySpell.", versionCommand)
     $0.addCommand("languages", "List supported languages.", languagesCommand)
     $0.addCommand("init", "Initialize a new \(Constants.configFileName) file with sample configuration.", initCommand)
+    $0.addCommand("rules", "List supported rules.", rulesCommand)
     $0.addCommand("check", "Start SwiftySpell.", checkCommand)
 }
 
