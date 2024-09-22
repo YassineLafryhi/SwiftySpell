@@ -43,7 +43,7 @@ internal class SwiftySpellChecker {
 
         while searchRange.location < text.utf16.count {
             var misspelledWordRange: NSRange?
-            var misspelledWord = ""
+            var misspelledWord = String()
             var isWordMisspelledInAllLanguages = true
 
             for language in languages {

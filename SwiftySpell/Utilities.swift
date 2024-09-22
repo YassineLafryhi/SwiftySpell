@@ -29,10 +29,10 @@ internal class Utilities {
     }
 
     static func printWarning(_ string: String) {
-        print("warning: \(string)")
+        print("\(Constants.Severity.warning): \(string)")
     }
 
     static func printError(_ string: String) {
-        print("error: \(string)")
+        print("\(Constants.Severity.error): \(string)")
     }
 }

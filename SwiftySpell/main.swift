@@ -16,9 +16,15 @@ internal let initCommand = command {
 
     do {
         try Constants.sampleConfig.write(toFile: filePath, atomically: true, encoding: .utf8)
-        Utilities.printInColors("\(Constants.configFileName) file has been created successfully.", color: .green, style: .bold)
+        Utilities.printInColors(
+            Constants.getMessage(.configFileCreatedSuccessfully(Constants.configFileName)),
+            color: .green,
+            style: .bold)
     } catch {
-        Utilities.printInColors("Error creating \(Constants.configFileName) file: \(error)", color: .red, style: .bold)
+        Utilities.printInColors(
+            Constants.getMessage(.failedToCreateConfigFile(Constants.configFileName, error.localizedDescription)),
+            color: .red,
+            style: .bold)
     }
 }
 
@@ -36,7 +42,7 @@ internal let checkCommand = command(
         swiftySpellCLI = SwiftySpellCLI(configFilePath: globalConfigFilePath)
     } else {
         Utilities.printError(
-            "SwiftySpell: Configuration file \(Constants.configFileName) not found in the project path nor in the home directory.")
+            Constants.getMessage(.configFileNotFound(Constants.configFileName)))
         exit(1)
     }
 

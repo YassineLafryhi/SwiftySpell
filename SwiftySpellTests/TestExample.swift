@@ -91,3 +91,32 @@ let wordsInBritishEnglish = ["colour", "jewellery", "analyse", "defence", "alumi
 let swiftKeywords = [
     "associatedtype", "deinit", "fileprivate", "rethrows", "typealias", "fallthrough", "nonmutating"
 ]
+
+let company = "microsoft"
+let firstname = "Adam"
+
+/// Represents a user in the system.
+///
+/// Conforms to `Codable`, `Hashable`, `Equatable`, and contains a role that is iterable.
+struct User: Codable, Hashable, Equatable {
+    var id: UUID
+    var name: String
+    var email: String
+    var role: Role
+
+    /// Represents the role of a user.
+    ///
+    /// Conforms to `CaseIterable` and `Codable` for easy iteration and serialization.
+    enum Role: String, CaseIterable, Codable {
+        case admin
+        case user
+        case guest
+    }
+
+    static func == (lhs: User, rhs: User) -> Bool {
+        lhs.id == rhs.id &&
+            lhs.name == rhs.name &&
+            lhs.email == rhs.email &&
+            lhs.role == rhs.role
+    }
+}

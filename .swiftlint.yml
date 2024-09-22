@@ -113,6 +113,13 @@ opt_in_rules:
   - vertical_whitespace
   - weak_delegate
   - xctfail_message
+  
+custom_rules:
+  no_string_literals:
+    name: "String Literals Warning"
+    regex: "\".*\""
+    message: "Avoid using string literals directly in the code. Move them to a constants file."
+    severity: warning
 
 # Rules configuration
 

@@ -10,13 +10,18 @@ exclude:
 
 # Rules to apply
 rules:
-  - one_line_comment
-  - multi_line_comment
-  - swift_keywords
+  #- support_flat_case
+  - support_one_line_comment
+  - support_multi_line_comment
+  #- ignore_capitalization
+  #- ignore_swift_keywords
 
 # Words/Regular expressions to ignore
 ignore:
-  - \b[0-9a-fA-F]{6}\b
-  - \bhttps?:\/\/[^\s]+\b
-  - ^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){2,}$
+  - \b[a-zA-Z]+able\b # Codable, Hashable ... (In Comments)
+  #- \b[0-9a-fA-F]{6}\b
+  #- \bhttps?:\/\/[^\s]+\b
+  #- ^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){2,}$
   - swifty
+  - lhs
+  - rhs

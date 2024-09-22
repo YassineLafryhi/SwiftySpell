@@ -29,7 +29,7 @@ internal class SwiftySpellCLI {
                 try processFile(file)
             }
         } catch {
-            print("Error: \(error)")
+            print(Constants.getMessage(.genericError(error.localizedDescription)))
         }
     }
 
@@ -45,14 +45,17 @@ internal class SwiftySpellCLI {
         var swiftFiles = [URL]()
         if let enumerator = enumerator {
             for case let fileURL as URL in enumerator {
-                let isDirectory = (try? fileURL.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
+                let isDirectory =
+                    (try? fileURL.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
                 if isDirectory {
                     if shouldExclude(directory: fileURL) {
                         enumerator.skipDescendants()
                         continue
                     }
                 } else {
-                    if fileURL.pathExtension == "swift", !shouldExclude(file: fileURL) {
+                    if
+                        fileURL.pathExtension == Constants.swiftFileExtension,
+                        !shouldExclude(file: fileURL) {
                         swiftFiles.append(fileURL)
                     }
                 }
@@ -87,7 +90,8 @@ internal class SwiftySpellCLI {
         visitor.extractMultiLineComments(from: url.path)
 
         let sourceLocationConverter = SourceLocationConverter(file: url.path, tree: sourceFile)
-        checkSpelling(in: visitor, filePath: url.path, sourceLocationConverter: sourceLocationConverter)
+        checkSpelling(
+            in: visitor, filePath: url.path, sourceLocationConverter: sourceLocationConverter)
     }
 
     private func checkSpelling(
@@ -96,7 +100,7 @@ internal class SwiftySpellCLI {
         sourceLocationConverter: SourceLocationConverter) {
         // TODO: Maybe this is no longer needed
         for (identifier, position, kind) in visitor.globalOrConstantVariables {
-            if kind == "let" || kind == "var" {
+            if kind == Constants.letSwiftKeyword || kind == Constants.varSwiftKeyword {
                 processSpelling(
                     for: identifier,
                     position: position,
@@ -305,7 +309,7 @@ internal class SwiftySpellCLI {
                 sourceLocationConverter: sourceLocationConverter)
         }
 
-        if config.rules.contains(.oneLineComment) {
+        if config.rules.contains(.supportOneLineComment) {
             for (comment, line) in visitor.oneLineComments {
                 processSpelling(
                     for: comment,
@@ -315,7 +319,7 @@ internal class SwiftySpellCLI {
             }
         }
 
-        if config.rules.contains(.multiLineComment) {
+        if config.rules.contains(.supportMultiLineComment) {
             for multiLineComment in visitor.multiLineComments {
                 for (commentLine, line) in multiLineComment {
                     processSpelling(
@@ -328,13 +332,13 @@ internal class SwiftySpellCLI {
         }
     }
 
-    func splitCamelCaseString(_ input: String) -> [String] {
+    private func splitCamelCaseString(_ input: String) -> [String] {
         var words: [String] = []
-        var currentWord = ""
+        var currentWord = String()
         for character in input {
             if character.isUppercase, !currentWord.isEmpty {
                 words.append(currentWord)
-                currentWord = String(character) /* .lowercased() */
+                currentWord = String(character)
             } else {
                 currentWord += String(character)
             }
@@ -343,6 +347,27 @@ internal class SwiftySpellCLI {
             words.append(currentWord)
         }
         return words
+    }
+
+    private func splitStringByDelimiters(
+        _ input: String,
+        delimiters: CharacterSet = CharacterSet(charactersIn: Constants.delimiters))
+        -> [String] {
+        input.components(separatedBy: delimiters)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+    }
+
+    private func joinWords(_ input: String) -> String {
+        let separators = CharacterSet.whitespaces.union(CharacterSet(charactersIn: "-"))
+        return input.components(separatedBy: separators)
+            .filter { !$0.isEmpty }
+            .joined()
+    }
+
+    private func cleanString(_ input: String) -> String {
+        input.replacingOccurrences(of: Constants.newLineCharacter, with: "")
+            .replacingOccurrences(of: Constants.tabCharacter, with: "")
     }
 
     private func processSpelling(
@@ -364,20 +389,24 @@ internal class SwiftySpellCLI {
 
         var currentWordColumn = column
 
-        let string = string.trimmingCharacters(in: .whitespaces)
+        var string = string.trimmingCharacters(in: .whitespaces)
+        string = cleanString(string)
 
-        if string.contains(" ") {
-            if string.starts(with: "\"") {
+        if string.contains(Constants.spaceCharacter) {
+            if string.starts(with: Constants.quoteCharacter) {
                 currentWordColumn += 1
             }
-            let allWords = string.split(separator: " ")
+            let allWords = string.split(separator: Character(Constants.spaceCharacter))
             for word in allWords {
                 let wordParts = splitCamelCaseString(String(word))
                 for part in wordParts {
-                    currentWordColumn = getColumn(
-                        line: line, identifier: part, filePath: filePath)
-                    checkWord(word: part)
-                    // currentWordColumn += word.count
+                    let elements = splitStringByDelimiters(part)
+                    for element in elements {
+                        currentWordColumn = getColumn(
+                            line: line, identifier: element, filePath: filePath)
+                        checkWord(word: element)
+                        // currentWordColumn += word.count
+                    }
                 }
             }
         } else {
@@ -386,8 +415,11 @@ internal class SwiftySpellCLI {
              } */
             let allWords = splitCamelCaseString(string)
             for word in allWords {
-                checkWord(word: word)
-                currentWordColumn += word.count
+                let elements = splitStringByDelimiters(word)
+                for element in elements {
+                    checkWord(word: element)
+                    currentWordColumn += element.count
+                }
             }
         }
 
@@ -398,10 +430,52 @@ internal class SwiftySpellCLI {
                 for (misspelledWord, suggestions) in corrections {
                     if suggestions.isEmpty {
                         print(
-                            "\(filePath):\(line):\(currentWordColumn): warning: '\(misspelledWord)' may be misspelled !")
+                            Constants.getMessage(
+                                .wordIsMisspelled(
+                                    path: filePath,
+                                    line: line,
+                                    column: currentWordColumn,
+                                    severity: .warning,
+                                    word: misspelledWord)))
                     } else {
-                        print(
-                            "\(filePath):\(line):\(currentWordColumn): warning: '\(misspelledWord)' may be misspelled, do you mean \(suggestions.map { "'\($0)'" }.joined(separator: ", ")) ?")
+                        // TODO: For these rules, using the suggestions array is not always sufficient
+                        let isIgnoreCapitalizationRuleEnabled = config.rules.contains(.ignoreCapitalization)
+                        let isSupportFlatCaseRuleEnabled = config.rules.contains(.supportFlatCase)
+
+                        var shouldCapitalizeWord = false
+                        var areWordsInFlatCaseFullyCorrect = false
+
+                        if isSupportFlatCaseRuleEnabled {
+                            for suggestion in suggestions {
+                                if misspelledWord == joinWords(suggestion) {
+                                    areWordsInFlatCaseFullyCorrect = true
+                                }
+
+                                // TODO: If the misspelledWord starts with a word from the ignore list, remove it then recheck spelling of the resulting word
+                            }
+                        }
+
+                        for suggestion in suggestions {
+                            if misspelledWord == suggestion.lowercased() {
+                                shouldCapitalizeWord = true
+                            }
+                        }
+
+                        if shouldCapitalizeWord && isIgnoreCapitalizationRuleEnabled {
+                            continue
+                        }
+
+                        if shouldCapitalizeWord || !areWordsInFlatCaseFullyCorrect {
+                            print(
+                                Constants.getMessage(
+                                    .wordIsMisspelledWithSuggestions(
+                                        path: filePath,
+                                        line: line,
+                                        column: currentWordColumn,
+                                        severity: .warning,
+                                        word: misspelledWord,
+                                        suggestions: suggestions)))
+                        }
                     }
                 }
             }
@@ -417,7 +491,8 @@ internal class SwiftySpellCLI {
                 lineContent.range(of: identifier)?.lowerBound.utf16Offset(in: lineContent) ?? 0
             return index + 1
         } catch {
-            Utilities.printError("Failed to read file: \(error)")
+            Utilities.printError(
+                Constants.getMessage(.failedToReadFile(error.localizedDescription)))
         }
         return 1
     }

@@ -220,12 +220,12 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     override func visit(_ node: DictionaryElementListSyntax) -> SyntaxVisitorContinueKind {
         for element in node {
             let keyName = element.keyExpression.description.trimmingCharacters(
-                in: CharacterSet(charactersIn: "\""))
+                in: CharacterSet(charactersIn: Constants.quoteCharacter))
             let keyPosition = element.keyExpression.position
             dictionaryKeys.append((keyName, keyPosition))
 
             let valueName = element.valueExpression.description.trimmingCharacters(
-                in: CharacterSet(charactersIn: "\""))
+                in: CharacterSet(charactersIn: Constants.quoteCharacter))
             let valuePosition = element.valueExpression.position
             dictionaryValues.append((valueName, valuePosition))
         }
@@ -235,7 +235,7 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     func extractOneLineComments(from filePath: String) {
         let fileURL = URL(fileURLWithPath: filePath)
         guard let fileContent = try? String(contentsOf: fileURL) else {
-            Utilities.printError("Failed to read file !")
+            Utilities.printError(Constants.getMessage(.failedToReadFile(filePath)))
             return
         }
         let lines = fileContent.components(separatedBy: .newlines)
@@ -243,9 +243,9 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
 
         for line in lines {
             lineNumber += 1
-            if line.contains("//") {
+            if line.contains(Constants.singleLineCommentStart) {
                 var comment = line
-                if line.hasPrefix("// ") {
+                if line.hasPrefix("\(Constants.singleLineCommentStart)\(Constants.spaceCharacter)") {
                     comment = String(line.dropFirst(3))
                 }
                 oneLineComments.append((comment.trimmingCharacters(in: .whitespacesAndNewlines), lineNumber))
@@ -256,7 +256,7 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     func extractMultiLineComments(from filePath: String) {
         let fileURL = URL(fileURLWithPath: filePath)
         guard let fileContent = try? String(contentsOf: fileURL) else {
-            Utilities.printError("Failed to read file !")
+            Utilities.printError(Constants.getMessage(.failedToReadFile(filePath)))
             return
         }
         let lines = fileContent.components(separatedBy: .newlines)
@@ -266,7 +266,7 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
 
         for line in lines {
             lineNumber += 1
-            if line.contains("/*") {
+            if line.contains(Constants.blockCommentStart) {
                 isMultiLineComment = true
                 multiLineComment.append((line, lineNumber))
             }
@@ -275,7 +275,7 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
                 multiLineComment.append((line, lineNumber))
             }
 
-            if line.contains("*/") {
+            if line.contains(Constants.blockCommentEnd) {
                 isMultiLineComment = false
                 multiLineComments.append(multiLineComment)
             }

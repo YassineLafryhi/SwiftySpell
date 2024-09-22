@@ -38,6 +38,8 @@ internal class SwiftySpellConfiguration: Codable {
                 for element in rulesSet {
                     if let rule = SupportedRule(rawValue: element) {
                         rules.insert(rule)
+                    } else {
+                        Utilities.printWarning(Constants.getMessage(.unknownRule(element)))
                     }
                 }
 
@@ -80,7 +82,7 @@ internal class SwiftySpellConfiguration: Codable {
                     }
                 }
 
-                if rules.contains(.swiftKeywords) {
+                if rules.contains(.ignoreSwiftKeywords) {
                     for keyword in Constants.swiftKeywords {
                         ignore.insert(keyword)
                     }
@@ -89,24 +91,22 @@ internal class SwiftySpellConfiguration: Codable {
 
             if !duplicates.isEmpty {
                 Utilities.printWarning(
-                    "The following words are duplicated in the ignore list and can be removed: \(duplicates.joined(separator: ", "))")
+                    Constants.getMessage(.duplicatesInIgnoreList(duplicates)))
             }
 
             if !capitalizedPairs.isEmpty {
                 Utilities.printWarning(
-                    "The following word pairs exist in both lowercase and capitalized forms: " + capitalizedPairs
-                        .map { "\($0.0) and \($0.1)" }
-                        .joined(separator: ", ") + ". The lowercase version is sufficient for SwiftySpell.")
+                    Constants.getMessage(.capitalizedPairsInIgnoreList(capitalizedPairs)))
             }
 
         } catch {
-            Utilities.printError("Error loading configuration: \(error.localizedDescription)")
+            Utilities.printError(
+                Constants.getMessage(.configLoadingError(error.localizedDescription)))
         }
     }
 
     private func isValidRegex(_ pattern: String) -> Bool {
-        let regexSymbols = "[.^$*+?()\\[\\]{}|\\\\]"
-        if pattern.range(of: regexSymbols, options: .regularExpression) == nil {
+        if pattern.range(of: Constants.regexSymbols, options: .regularExpression) == nil {
             return false
         }
 
@@ -119,16 +119,17 @@ internal class SwiftySpellConfiguration: Codable {
     }
 
     private func isFilePath(_ path: String) -> Bool {
-        path.hasSuffix(".swift")
+        path.hasSuffix(Constants.swiftFileExtension)
     }
 
     enum SupportedRule: String, Codable, CaseIterable {
-        case oneLineComment = "one_line_comment"
-        case multiLineComment = "multi_line_comment"
-        case swiftKeywords = "swift_keywords"
+        case ignoreCapitalization = "ignore_capitalization"
+        case supportFlatCase = "support_flat_case"
+        case supportOneLineComment = "support_one_line_comment"
+        case supportMultiLineComment = "support_multi_line_comment"
+        case ignoreSwiftKeywords = "ignore_swift_keywords"
 
         // TODO: Add support for these rules
-        // case capitalization
         // case pluralConsistency = "plural_consistency"
         // case homophoneCheck = "homophone_check"
         // case possessiveApostrophe = "possessive_apostrophe"
