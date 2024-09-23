@@ -41,9 +41,9 @@ internal let checkCommand = command(
     } else if fileManager.fileExists(atPath: globalConfigFilePath) {
         swiftySpellCLI = SwiftySpellCLI(configFilePath: globalConfigFilePath)
     } else {
-        Utilities.printError(
+        Utilities.printWarning(
             Constants.getMessage(.configFileNotFound(Constants.configFileName)))
-        exit(1)
+        swiftySpellCLI = SwiftySpellCLI()
     }
 
     swiftySpellCLI.run(for: path)
@@ -67,15 +67,15 @@ internal let rulesCommand = command {
 
 internal let versionCommand = command {
     let version = Constants.currentVersion
-    Utilities.printInColors("SwiftySpell v\(version)", color: .green, style: .bold)
+    Utilities.printInColors("\(Constants.name) v\(version)", color: .green, style: .bold)
 }
 
 internal let main = Group {
-    $0.addCommand("version", "Print the current version of SwiftySpell.", versionCommand)
+    $0.addCommand("version", "Print the current version of \(Constants.name).", versionCommand)
     $0.addCommand("languages", "List supported languages.", languagesCommand)
     $0.addCommand("init", "Initialize a new \(Constants.configFileName) file with sample configuration.", initCommand)
     $0.addCommand("rules", "List supported rules.", rulesCommand)
-    $0.addCommand("check", "Start SwiftySpell.", checkCommand)
+    $0.addCommand("check", "Start \(Constants.name).", checkCommand)
 }
 
 main.run()

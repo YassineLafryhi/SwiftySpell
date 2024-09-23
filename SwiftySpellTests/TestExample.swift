@@ -94,14 +94,16 @@ let swiftKeywords = [
 
 let company = "microsoft"
 let firstname = "Adam"
+let text = "heHas1bookWith300pages"
 
 /// Represents a user in the system.
 ///
-/// Conforms to `Codable`, `Hashable`, `Equatable`, and contains a role that is iterable.
-struct User: Codable, Hashable, Equatable {
+/// Conforms to `Codable`, `Hashable`, `Equatable`, `Comparable`, `Identifiable`, and contains a role that is iterable.
+struct User: Codable, Hashable, Equatable, Comparable, Identifiable {
     var id: UUID
     var name: String
     var email: String
+    var age: Int
     var role: Role
 
     /// Represents the role of a user.
@@ -118,5 +120,9 @@ struct User: Codable, Hashable, Equatable {
             lhs.name == rhs.name &&
             lhs.email == rhs.email &&
             lhs.role == rhs.role
+    }
+
+    static func < (lhs: User, rhs: User) -> Bool {
+        lhs.age < rhs.age
     }
 }

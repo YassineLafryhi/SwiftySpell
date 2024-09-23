@@ -8,13 +8,17 @@
 import Foundation
 
 internal class Constants {
+    static let name = "SwiftySpell"
     static let currentVersion = "0.9.6"
     static let configFileName = ".swiftyspell.yml"
+    static let defaultLanguage = "en"
+    static let languageCodeOfBritishEnglish = "en_GB"
 
     static let sampleConfig = """
         # Languages to check
         languages:
           - en
+          #- en_GB
 
         # Directories/Files/Regular expressions to exclude
         exclude:
@@ -23,21 +27,24 @@ internal class Constants {
 
         # Rules to apply
         rules:
-          - one_line_comment
-          - multi_line_comment
+          - support_flat_case
+          - support_one_line_comment
+          - support_multi_line_comment
+          #- support_british_words
+          #- ignore_capitalization
+          - ignore_swift_keywords
+          - ignore_other_words
+          #- ignore_shortened_words
+          #- ignore_lorem_ipsum
+          #- ignore_html_tags
+          - ignore_urls
 
         # Words/Regular expressions to ignore
         ignore:
           - iOS
         """
 
-    static let swiftKeywords = [
-        "associatedtype", "deinit", "fileprivate", "rethrows", "typealias", "fallthrough",
-        "nonmutating"
-    ]
-
     static let delimiters = ",.:-;_!`"
-
     static let blockCommentStart = "/*"
     static let blockCommentEnd = "*/"
     static let singleLineCommentStart = "//"
@@ -97,7 +104,7 @@ internal class Constants {
         case let .capitalizedPairsInIgnoreList(pairs):
             "The following word pairs exist in both lowercase and capitalized forms: " +
                 pairs.map { "\($0.0) and \($0.1)" }.joined(separator: ", ") +
-                ". The lowercase version is sufficient for SwiftySpell."
+                ". The lowercase version is sufficient for \(Constants.name)."
         case let .configLoadingError(error):
             "Error loading configuration: \(error)"
         case let .unknownRule(rule):
@@ -131,4 +138,64 @@ internal class Constants {
         case error
         case warning
     }
+
+    static let swiftKeywords = [
+        "associatedtype", "deinit", "fileprivate", "rethrows", "typealias", "fallthrough",
+        "nonmutating"
+    ]
+
+    static let htmlTags = [
+        "nav", "div", "span", "ul", "li", "ol",
+        "br", "thead", "tbody", "tr", "td", "th"
+    ]
+
+    static let shortenedWords = [
+        "img", "imgs", "arr", "curr", "attr", "attrs",
+        "attribs", "btn", "txt", "lbl", "cfg", "usr",
+        "num", "err", "msg", "pwd", "val", "max",
+        "min", "info", "nav", "dir", "dirs", "idx",
+        "elem", "tmp", "impl", "params", "auth", "utils",
+        "gen", "bg", "buf", "faq", "arch", "archs",
+        "expr", "ctx", "grp", "addr", "dst", "proj"
+    ]
+
+    static let otherWords = [
+        "codable", "hashable", "iterable", "diffable", "lhs", "rhs",
+        "usleep", "autoreleasepool", "cancellables", "qos", "xcode", "spi",
+        "sut", "xcodebuild", "iphone", "ipad", "xcpretty", "tuist",
+        "md5", "sha1", "pkcs12", "eof", "nio", "ipv4",
+        "ipv6", "yyyy", "ss", "md", "js", "cer",
+        "ws", "wss", "iphoneos", "utf", "utf8", "utf16",
+        "ios", "dylib", "swiftlang", "xcodeproj", "xcworkspace", "swiftgen",
+        "rswift", "xcconfig", "sourcery", "xlinker", "xcframework", "iboutlet",
+        "ibinspectable", "ibdesignable", "xcframeworks", "sdk", "protobuf", "alamofire",
+        "grpc", "momd", "moya", "utc", "crlf", "deinitialized",
+        "deinitialization", "xctest", "xcprivacy", "nonobjc", "sha256", "ocr",
+        "nfc", "opencv", "rgb", "rgba", "rtl", "ltr",
+        "csv", "graphql", "sqrt", "kotlin", "gradle", "nodoc",
+        "recaptcha", "yml", "toml", "linuxmain", "rfc", "ns",
+        "nsrange", "nserror", "nsobject", "nsstring", "linting", "netrc",
+        "whoami", "aarch64", "macosx", "pkg", "Onone", "lproj",
+        "uid", "io", "xcassets", "oauth", "heic", "zlib",
+        "foobar", "corelibs", "unkeyed", "inlinable"
+    ]
+
+    static let loremIpsumWords = [
+        "lorem", "ipsum", "dolor", "sit", "amet", "consectetur",
+        "adipiscing", "elit", "sed", "do", "eiusmod", "tempor",
+        "incididunt", "ut", "labore", "et", "dolore", "magna",
+        "aliqua", "ut", "enim", "ad", "minim", "veniam",
+        "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi",
+        "ut", "aliquip", "ex", "ea", "commodo", "consequat",
+        "duis", "aute", "irure", "dolor", "in", "reprehenderit",
+        "in", "voluptate", "velit", "esse", "cillum", "dolore",
+        "eu", "fugiat", "nulla", "pariatur", "excepteur", "sint",
+        "occaecat", "cupidatat", "non", "proident", "sunt", "in",
+        "culpa", "qui", "officia", "deserunt", "mollit", "anim",
+        "id", "est", "laborum", "curabitur", "pretium", "tincidunt",
+        "lacus", "suspendisse", "potenti", "ut", "pharetra", "augue",
+        "nec", "augue", "nam", "elit", "magna", "hendrerit",
+        "sit", "amet", "tincidunt", "ac", "viverra", "sed",
+        "nulla", "donec", "porta", "diam", "eu", "massa"
+    ]
 }

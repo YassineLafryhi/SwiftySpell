@@ -22,6 +22,14 @@ internal class SwiftySpellCLI {
             ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
     }
 
+    init() {
+        config = SwiftySpellConfiguration()
+        checker = SwiftySpellChecker(
+            ignoredWords: config.ignore,
+            ignoredPatternsOfWords: config.ignoredPatternsOfWords,
+            ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
+    }
+
     func run(for directoryPath: String) {
         do {
             let swiftFiles = try fetchSwiftFiles(from: directoryPath)
@@ -86,6 +94,7 @@ internal class SwiftySpellCLI {
         let sourceFile = try SyntaxParser.parse(url)
         let visitor = SwiftySpellCodeVisitor(viewMode: .all)
         visitor.walk(sourceFile)
+        // TODO: Add comment rule check here
         visitor.extractOneLineComments(from: url.path)
         visitor.extractMultiLineComments(from: url.path)
 
@@ -370,6 +379,12 @@ internal class SwiftySpellCLI {
             .replacingOccurrences(of: Constants.tabCharacter, with: "")
     }
 
+    private func isValidURL(_ urlString: String) -> Bool {
+        // TODO: Use a Regular Expression to check valid URL
+        var urlString = urlString.replacingOccurrences(of: Constants.quoteCharacter, with: String())
+        return urlString.starts(with: "http://") || urlString.starts(with: "https://")
+    }
+
     private func processSpelling(
         for string: String,
         position: AbsolutePosition? = nil,
@@ -390,6 +405,10 @@ internal class SwiftySpellCLI {
         var currentWordColumn = column
 
         var string = string.trimmingCharacters(in: .whitespaces)
+
+        if config.rules.contains(.ignoreUrls), isValidURL(string) {
+                return
+        }
         string = cleanString(string)
 
         if string.contains(Constants.spaceCharacter) {
