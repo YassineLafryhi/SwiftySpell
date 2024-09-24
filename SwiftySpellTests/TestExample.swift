@@ -94,7 +94,8 @@ let swiftKeywords = [
 
 let company = "microsoft"
 let firstname = "Adam"
-let text = "heHas1bookWith300pages"
+let text1 = "heHas1bookWith300pages"
+let text2 = "Alamofire's work is awesome"
 
 /// Represents a user in the system.
 ///

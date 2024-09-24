@@ -8,7 +8,7 @@
 import Foundation
 import Yams
 
-internal class SwiftySpellConfiguration: Codable {
+internal class SwiftySpellConfiguration {
     var languages: Set<String> = []
     var exclude: Set<String> = []
     var rules: Set<SupportedRule> = []
@@ -20,54 +20,23 @@ internal class SwiftySpellConfiguration: Codable {
     var excludedFiles: [String] = []
     var excludedDirectories: [String] = []
 
+    private var rawIgnoreList: [String] = []
+    private var rulesSet: Set<String> = []
+    private var duplicates = Set<String>()
+    private var capitalizedPairs = [(String, String)]()
+
     init() {
         languages = [Constants.defaultLanguage]
-        excludedDirectories.append("Pods")
+        for directory in Constants.defaultExcludedDirectories {
+            exclude.insert(directory)
+        }
+        for file in Constants.defaultExcludedFiles {
+            exclude.insert(file)
+        }
         for rule in SwiftySpellConfiguration.SupportedRule.allCases {
-            rules.insert(rule)
+            rulesSet.insert(rule.rawValue)
         }
-
-        if rules.contains(.ignoreSwiftKeywords) {
-            for keyword in Constants.swiftKeywords {
-                ignore.insert(keyword)
-            }
-        }
-
-        if rules.contains(.ignoreShortenedWords) {
-            for word in Constants.shortenedWords {
-                ignore.insert(word)
-            }
-        }
-
-        if rules.contains(.ignoreOtherWords) {
-            for word in Constants.otherWords {
-                ignore.insert(word)
-            }
-        }
-
-        if rules.contains(.ignoreLoremIpsum) {
-            for word in Constants.loremIpsumWords {
-                ignore.insert(word)
-            }
-        }
-
-        if rules.contains(.ignoreHtmlTags) {
-            for word in Constants.htmlTags {
-                ignore.insert(word)
-            }
-        }
-
-        if rules.contains(.supportBritishWords) {
-            languages.insert(Constants.languageCodeOfBritishEnglish)
-        }
-
-        // TODO: Fix this
-        var ignoredWords = ignore
-
-        for word in ignoredWords {
-            let capitalizedWord = word.capitalized
-            ignore.insert(capitalizedWord)
-        }
+        prepareConfiguration()
     }
 
     init(configFilePath: String) {
@@ -77,109 +46,120 @@ internal class SwiftySpellConfiguration: Codable {
     private func loadConfiguration(from filePath: String) {
         do {
             let fileContents = try String(contentsOfFile: filePath)
-            var duplicates = Set<String>()
-            var capitalizedPairs = [(String, String)]()
             if let yaml = try? Yams.load(yaml: fileContents) as? [String: [String]] {
                 languages = Set(yaml["languages"] ?? [Constants.defaultLanguage])
-                let rawIgnoreList = yaml["ignore"] ?? []
+                rawIgnoreList = yaml["ignore"] ?? []
                 exclude = Set(yaml["exclude"] ?? [])
-                let rulesSet = Set(yaml["rules"] ?? [])
-
-                for element in rulesSet {
-                    if let rule = SupportedRule(rawValue: element) {
-                        rules.insert(rule)
-                    } else {
-                        Utilities.printWarning(Constants.getMessage(.unknownRule(element)))
-                    }
-                }
-
-                var ignoredWords: [String] = []
-
-                for element in rawIgnoreList {
-                    if isValidRegex(element) {
-                        ignoredPatternsOfWords.append(element)
-                    } else {
-                        ignoredWords.append(element)
-                    }
-                }
-
-                for word in ignoredWords where !ignore.insert(word).inserted {
-                    duplicates.insert(word)
-                }
-
-                for word in ignoredWords {
-                    let capitalizedWord = word.capitalized
-
-                    if ignore.contains(capitalizedWord), word != capitalizedWord {
-                        capitalizedPairs.append((word, capitalizedWord))
-                    }
-                }
-
-                for word in ignoredWords {
-                    let capitalizedWord = word.capitalized
-                    ignore.insert(capitalizedWord)
-                }
-
-                for element in exclude {
-                    if isValidRegex(element) {
-                        ignoredPatternsOfFilesOrDirectories.append(element)
-                    } else {
-                        if isFilePath(element) {
-                            excludedFiles.append(element)
-                        } else {
-                            excludedDirectories.append(element)
-                        }
-                    }
-                }
-
-                if rules.contains(.supportBritishWords) {
-                    languages.insert(Constants.languageCodeOfBritishEnglish)
-                }
-
-                if rules.contains(.ignoreSwiftKeywords) {
-                    for keyword in Constants.swiftKeywords {
-                        ignore.insert(keyword)
-                    }
-                }
-
-                if rules.contains(.ignoreShortenedWords) {
-                    for word in Constants.shortenedWords {
-                        ignore.insert(word)
-                    }
-                }
-
-                if rules.contains(.ignoreOtherWords) {
-                    for word in Constants.otherWords {
-                        ignore.insert(word)
-                    }
-                }
-
-                if rules.contains(.ignoreLoremIpsum) {
-                    for word in Constants.loremIpsumWords {
-                        ignore.insert(word)
-                    }
-                }
-
-                if rules.contains(.ignoreHtmlTags) {
-                    for word in Constants.htmlTags {
-                        ignore.insert(word)
-                    }
-                }
+                rulesSet = Set(yaml["rules"] ?? [])
             }
 
-            if !duplicates.isEmpty {
-                Utilities.printWarning(
-                    Constants.getMessage(.duplicatesInIgnoreList(duplicates)))
-            }
-
-            if !capitalizedPairs.isEmpty {
-                Utilities.printWarning(
-                    Constants.getMessage(.capitalizedPairsInIgnoreList(capitalizedPairs)))
-            }
+            prepareConfiguration()
 
         } catch {
             Utilities.printError(
                 Constants.getMessage(.configLoadingError(error.localizedDescription)))
+        }
+    }
+
+    private func prepareConfiguration() {
+        for element in rulesSet {
+            if let rule = SupportedRule(rawValue: element) {
+                rules.insert(rule)
+            } else {
+                Utilities.printWarning(Constants.getMessage(.unknownRule(element)))
+            }
+        }
+
+        var ignoredWords: [String] = []
+
+        for element in rawIgnoreList {
+            if isValidRegex(element) {
+                ignoredPatternsOfWords.append(element)
+            } else {
+                ignoredWords.append(element)
+            }
+        }
+
+        for word in ignoredWords where !ignore.insert(word).inserted {
+            duplicates.insert(word)
+        }
+
+        for word in ignoredWords {
+            let capitalizedWord = word.capitalized
+
+            if ignore.contains(capitalizedWord), word != capitalizedWord {
+                capitalizedPairs.append((word, capitalizedWord))
+            }
+        }
+
+        for word in ignoredWords {
+            let capitalizedWord = word.capitalized
+            ignore.insert(capitalizedWord)
+        }
+
+        for element in exclude {
+            if isValidRegex(element) {
+                ignoredPatternsOfFilesOrDirectories.append(element)
+            } else {
+                if isFilePath(element) {
+                    excludedFiles.append(element)
+                } else {
+                    excludedDirectories.append(element)
+                }
+            }
+        }
+
+        if rules.contains(.supportBritishWords) {
+            languages.insert(Constants.languageCodeOfBritishEnglish)
+        }
+
+        if rules.contains(.ignoreSwiftKeywords) {
+            for keyword in Constants.swiftKeywords {
+                ignore.insert(keyword)
+                ignore.insert(keyword.capitalized)
+            }
+        }
+
+        if rules.contains(.ignoreShortenedWords) {
+            for word in Constants.shortenedWords {
+                ignore.insert(word)
+                ignore.insert(word.capitalized)
+            }
+        }
+
+        if rules.contains(.ignoreOtherWords) {
+            for word in Constants.otherWords {
+                ignore.insert(word)
+                ignore.insert(word.capitalized)
+            }
+
+            for pattern in Constants.otherWordPatterns {
+                ignoredPatternsOfWords.append(pattern)
+            }
+        }
+
+        if rules.contains(.ignoreLoremIpsum) {
+            for word in Constants.loremIpsumWords {
+                ignore.insert(word)
+                ignore.insert(word.capitalized)
+            }
+        }
+
+        if rules.contains(.ignoreHtmlTags) {
+            for word in Constants.htmlTags {
+                ignore.insert(word)
+                ignore.insert(word.capitalized)
+            }
+        }
+
+        if !duplicates.isEmpty {
+            Utilities.printWarning(
+                Constants.getMessage(.duplicatesInIgnoreList(duplicates)))
+        }
+
+        if !capitalizedPairs.isEmpty {
+            Utilities.printWarning(
+                Constants.getMessage(.capitalizedPairsInIgnoreList(capitalizedPairs)))
         }
     }
 
@@ -216,6 +196,5 @@ internal class SwiftySpellConfiguration: Codable {
         // TODO: Add support for these rules
         // case pluralConsistency = "plural_consistency"
         // case homophoneCheck = "homophone_check"
-        // case possessiveApostrophe = "possessive_apostrophe"
     }
 }

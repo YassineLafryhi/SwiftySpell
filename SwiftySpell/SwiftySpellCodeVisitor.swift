@@ -39,6 +39,8 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     var oneLineComments: [(String, Int)] = []
     var multiLineComments: [[(String, Int)]] = []
 
+    var isAuthorNameAddedToIgnoreList = false
+
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
         let protocolName = node.identifier.text
         let position = node.position
@@ -47,8 +49,7 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     }
 
     override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
-        let extendedTypeName = node.extendedType.description.trimmingCharacters(
-            in: .whitespacesAndNewlines)
+        let extendedTypeName = node.extendedType.description.trim()
         let position = node.position
         extensions.append((extendedTypeName, position))
         return .visitChildren
@@ -248,7 +249,28 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
                 if line.hasPrefix("\(Constants.singleLineCommentStart)\(Constants.spaceCharacter)") {
                     comment = String(line.dropFirst(3))
                 }
-                oneLineComments.append((comment.trimmingCharacters(in: .whitespacesAndNewlines), lineNumber))
+
+                comment = comment.trim()
+
+                if comment.starts(with: Constants.createdBy) {
+                    if
+                        let authorfullName = comment.remove(Constants.createdBy)
+                            .components(separatedBy: Constants.on).first {
+                        if !isAuthorNameAddedToIgnoreList {
+                            for element in authorfullName.trim()
+                                .components(separatedBy: Constants.spaceCharacter) {
+                                // TODO: Add author first/last name to ignore list
+                            }
+                            isAuthorNameAddedToIgnoreList = true
+                        }
+                    }
+                    continue
+                }
+
+                if comment.starts(with: Constants.copyright) {
+                    continue
+                }
+                oneLineComments.append((comment, lineNumber))
             }
         }
     }

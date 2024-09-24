@@ -11,8 +11,15 @@ internal class Constants {
     static let name = "SwiftySpell"
     static let currentVersion = "0.9.6"
     static let configFileName = ".swiftyspell.yml"
+
     static let defaultLanguage = "en"
     static let languageCodeOfBritishEnglish = "en_GB"
+    static let defaultExcludedDirectories = ["Pods"]
+    static let defaultExcludedFiles = ["Package.swift"]
+
+    static let createdBy = "Created by"
+    static let copyright = "Copyright"
+    static let on = "on"
 
     static let sampleConfig = """
         # Languages to check
@@ -44,7 +51,7 @@ internal class Constants {
           - iOS
         """
 
-    static let delimiters = ",.:-;_!`"
+    static let delimiters = ",.:-;_!`@"
     static let blockCommentStart = "/*"
     static let blockCommentEnd = "*/"
     static let singleLineCommentStart = "//"
@@ -52,12 +59,15 @@ internal class Constants {
     static let spaceCharacter = " "
     static let newLineCharacter = "\\n"
     static let tabCharacter = "\\t"
+    static let possessiveApostrophe = "'"
+    static let possessiveMarker = "s"
     static let swiftFileExtension = "swift"
     static let regexSymbols = "[.^$*+?()\\[\\]{}|\\\\]"
     static let letSwiftKeyword = "let"
     static let varSwiftKeyword = "var"
 
     enum MessageType {
+        case projectPathDoesNotExist
         case genericError(_ error: String)
         case configFileCreatedSuccessfully(_ fileName: String)
         case failedToCreateConfigFile(_ fileName: String, _ error: String)
@@ -79,10 +89,12 @@ internal class Constants {
 
     static func getMessage(_ message: MessageType) -> String {
         switch message {
+        case .projectPathDoesNotExist:
+            "The given project path does not exist."
         case let .configFileCreatedSuccessfully(fileName):
             "\(fileName) config file has been created successfully."
         case let .configFileNotFound(fileName):
-            "Config file \(fileName) not found in the project path nor in the home directory."
+            "Config file \(fileName) not found in the project path nor in the home directory. Default config will be used."
         case let .failedToReadFile(error):
             "Failed to read file: \(error)"
         case let .wordIsMisspelled(path: path, line: line, column: column, severity: severity, word: word):
@@ -146,7 +158,8 @@ internal class Constants {
 
     static let htmlTags = [
         "nav", "div", "span", "ul", "li", "ol",
-        "br", "thead", "tbody", "tr", "td", "th"
+        "br", "thead", "tbody", "tr", "td", "th",
+        "svg"
     ]
 
     static let shortenedWords = [
@@ -156,7 +169,8 @@ internal class Constants {
         "min", "info", "nav", "dir", "dirs", "idx",
         "elem", "tmp", "impl", "params", "auth", "utils",
         "gen", "bg", "buf", "faq", "arch", "archs",
-        "expr", "ctx", "grp", "addr", "dst", "proj"
+        "expr", "ctx", "grp", "addr", "dst", "proj",
+        "enc", "env", "envs", "attrib", "subdir", "iter"
     ]
 
     static let otherWords = [
@@ -164,7 +178,7 @@ internal class Constants {
         "usleep", "autoreleasepool", "cancellables", "qos", "xcode", "spi",
         "sut", "xcodebuild", "iphone", "ipad", "xcpretty", "tuist",
         "md5", "sha1", "pkcs12", "eof", "nio", "ipv4",
-        "ipv6", "yyyy", "ss", "md", "js", "cer",
+        "ipv6", "yyyy", "ss", "md", "js", "cer", "ttf", "otf",
         "ws", "wss", "iphoneos", "utf", "utf8", "utf16",
         "ios", "dylib", "swiftlang", "xcodeproj", "xcworkspace", "swiftgen",
         "rswift", "xcconfig", "sourcery", "xlinker", "xcframework", "iboutlet",
@@ -177,7 +191,11 @@ internal class Constants {
         "nsrange", "nserror", "nsobject", "nsstring", "linting", "netrc",
         "whoami", "aarch64", "macosx", "pkg", "Onone", "lproj",
         "uid", "io", "xcassets", "oauth", "heic", "zlib",
-        "foobar", "corelibs", "unkeyed", "inlinable"
+        "foobar", "corelibs", "unkeyed", "inlinable", "utf32",
+        "rethrow", "sha512", "bcrypt", "rx", "reactivex", "xcrun",
+        "lipo", "xcscheme", "xcarchive", "armv7", "simctl", "otool",
+        "iphonesimulator", "appletvos", "interactor", "jwt", "csrf", "iot",
+        "crashlytics", "qr"
     ]
 
     static let loremIpsumWords = [
@@ -197,5 +215,9 @@ internal class Constants {
         "nec", "augue", "nam", "elit", "magna", "hendrerit",
         "sit", "amet", "tincidunt", "ac", "viverra", "sed",
         "nulla", "donec", "porta", "diam", "eu", "massa"
+    ]
+
+    static let otherWordPatterns = [
+        "^(?i)RFC\\d+$"
     ]
 }

@@ -21,7 +21,7 @@ internal class Utilities {
     static func printInColors(_ message: String, color: Constants.ANSIColor = .blue, style: Constants.TextStyle = .bold) {
         if doesTerminalSupportANSIColors() { _ = style == .bold ? ";1m" : "m"
             let coloredMessage =
-                "\(color.rawValue)\(style == .bold ? color.rawValue.replacingOccurrences(of: "[0;", with: "[1;") : color.rawValue)\(message)\(Constants.ANSIColor.reset.rawValue)"
+                "\(color.rawValue)\(style == .bold ? color.rawValue.replace("[0;", "[1;") : color.rawValue)\(message)\(Constants.ANSIColor.reset.rawValue)"
             print(coloredMessage)
         } else {
             print(message)

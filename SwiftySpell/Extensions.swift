@@ -12,6 +12,18 @@ extension String {
     func matches(_ pattern: String) -> Bool {
         range(of: pattern, options: .regularExpression) != nil
     }
+
+    func replace(_ target: String, _ replacement: String) -> String {
+        replacingOccurrences(of: target, with: replacement)
+    }
+
+    func remove(_ substring: String) -> String {
+        replacingOccurrences(of: substring, with: String())
+    }
+
+    func trim() -> String {
+        trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }
 
 extension SyntaxProtocol {

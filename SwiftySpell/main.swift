@@ -10,6 +10,8 @@ import Commander
 import Foundation
 import Yams
 
+var swiftySpellCLI = SwiftySpellCLI()
+
 internal let initCommand = command {
     let currentPath = FileManager.default.currentDirectoryPath
     let filePath = "\(currentPath)/\(Constants.configFileName)"
@@ -30,23 +32,16 @@ internal let initCommand = command {
 
 internal let checkCommand = command(
     Argument<String>("path", description: "The project path .")) { path in
-    let fileManager = FileManager.default
-    let homeDirectory = fileManager.homeDirectoryForCurrentUser
-    let projectConfigFilePath = "\(path)/\(Constants.configFileName)"
-    let globalConfigFilePath = homeDirectory.appendingPathComponent(Constants.configFileName).path
 
-    let swiftySpellCLI: SwiftySpellCLI
-    if fileManager.fileExists(atPath: projectConfigFilePath) {
-        swiftySpellCLI = SwiftySpellCLI(configFilePath: projectConfigFilePath)
-    } else if fileManager.fileExists(atPath: globalConfigFilePath) {
-        swiftySpellCLI = SwiftySpellCLI(configFilePath: globalConfigFilePath)
-    } else {
-        Utilities.printWarning(
-            Constants.getMessage(.configFileNotFound(Constants.configFileName)))
-        swiftySpellCLI = SwiftySpellCLI()
-    }
+    loadConfig(projectPath: path)
+    swiftySpellCLI.check(path, withFix: false)
+}
 
-    swiftySpellCLI.run(for: path)
+internal let fixCommand = command(
+    Argument<String>("path", description: "The project path .")) { path in
+
+    loadConfig(projectPath: path)
+    swiftySpellCLI.check(path, withFix: true)
 }
 
 internal let languagesCommand = command {
@@ -70,12 +65,46 @@ internal let versionCommand = command {
     Utilities.printInColors("\(Constants.name) v\(version)", color: .green, style: .bold)
 }
 
+private func loadConfig(projectPath: String) {
+    let fileManager = FileManager.default
+
+    if !fileManager.fileExists(atPath: projectPath, isDirectory: nil) {
+        Utilities.printError(Constants.getMessage(.projectPathDoesNotExist))
+        exit(1)
+    }
+
+    let homeDirectory = fileManager.homeDirectoryForCurrentUser
+    let projectConfigFilePath = "\(projectPath)/\(Constants.configFileName)"
+    let globalConfigFilePath = homeDirectory.appendingPathComponent(Constants.configFileName).path
+
+    if fileManager.fileExists(atPath: projectConfigFilePath) {
+        swiftySpellCLI = SwiftySpellCLI(configFilePath: projectConfigFilePath)
+    } else if fileManager.fileExists(atPath: globalConfigFilePath) {
+        swiftySpellCLI = SwiftySpellCLI(configFilePath: globalConfigFilePath)
+    } else {
+        Utilities.printWarning(Constants.getMessage(.configFileNotFound(Constants.configFileName)))
+    }
+}
+
+internal enum CLICommand: String {
+    case version
+    case languages
+    case `init`
+    case rules
+    case check
+    case fix
+}
+
 internal let main = Group {
-    $0.addCommand("version", "Print the current version of \(Constants.name).", versionCommand)
-    $0.addCommand("languages", "List supported languages.", languagesCommand)
-    $0.addCommand("init", "Initialize a new \(Constants.configFileName) file with sample configuration.", initCommand)
-    $0.addCommand("rules", "List supported rules.", rulesCommand)
-    $0.addCommand("check", "Start \(Constants.name).", checkCommand)
+    $0.addCommand(CLICommand.version.rawValue, "Print the current version of \(Constants.name).", versionCommand)
+    $0.addCommand(CLICommand.languages.rawValue, "List supported languages.", languagesCommand)
+    $0.addCommand(
+        CLICommand.`init`.rawValue,
+        "Initialize a new \(Constants.configFileName) file with sample configuration.",
+        initCommand)
+    $0.addCommand(CLICommand.rules.rawValue, "List supported rules.", rulesCommand)
+    $0.addCommand(CLICommand.check.rawValue, "Start \(Constants.name).", checkCommand)
+    $0.addCommand(CLICommand.fix.rawValue, "Correct most spelling errors.", fixCommand)
 }
 
 main.run()

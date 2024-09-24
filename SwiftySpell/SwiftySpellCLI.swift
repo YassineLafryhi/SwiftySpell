@@ -13,6 +13,7 @@ internal class SwiftySpellCLI {
     let fileManager = FileManager.default
     let config: SwiftySpellConfiguration
     let checker: SwiftySpellChecker
+    var withFix = false
 
     init(configFilePath: String) {
         config = SwiftySpellConfiguration(configFilePath: configFilePath)
@@ -30,7 +31,8 @@ internal class SwiftySpellCLI {
             ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
     }
 
-    func run(for directoryPath: String) {
+    func check(_ directoryPath: String, withFix: Bool) {
+        self.withFix = withFix
         do {
             let swiftFiles = try fetchSwiftFiles(from: directoryPath)
             for file in swiftFiles {
@@ -100,7 +102,22 @@ internal class SwiftySpellCLI {
 
         let sourceLocationConverter = SourceLocationConverter(file: url.path, tree: sourceFile)
         checkSpelling(
-            in: visitor, filePath: url.path, sourceLocationConverter: sourceLocationConverter)
+            in: visitor,
+            filePath: url.path,
+            sourceLocationConverter: sourceLocationConverter)
+    }
+
+    // TODO: Improve this to use SyntaxRewriter
+    private func renameInFile(misspelledWord: String, correctWord: String, filePath: String) -> Bool {
+        do {
+            var fileContents = try String(contentsOfFile: filePath, encoding: .utf8)
+            // TODO: Improve this to replace exactly in line number on the misspelledWord column
+            fileContents = fileContents.replace(misspelledWord, correctWord)
+            try fileContents.write(toFile: filePath, atomically: true, encoding: .utf8)
+            return true
+        } catch {
+            return false
+        }
     }
 
     private func checkSpelling(
@@ -185,7 +202,7 @@ internal class SwiftySpellCLI {
         }
 
         for node in visitor.strings {
-            let stringValue = node.description.trimmingCharacters(in: .whitespacesAndNewlines)
+            let stringValue = node.description.trim()
             let startLocation = node.startLocation(converter: sourceLocationConverter)
             processSpelling(
                 for: stringValue,
@@ -375,13 +392,13 @@ internal class SwiftySpellCLI {
     }
 
     private func cleanString(_ input: String) -> String {
-        input.replacingOccurrences(of: Constants.newLineCharacter, with: "")
-            .replacingOccurrences(of: Constants.tabCharacter, with: "")
+        input.remove(Constants.newLineCharacter)
+            .remove(Constants.tabCharacter)
     }
 
     private func isValidURL(_ urlString: String) -> Bool {
         // TODO: Use a Regular Expression to check valid URL
-        var urlString = urlString.replacingOccurrences(of: Constants.quoteCharacter, with: String())
+        let urlString = urlString.remove(Constants.quoteCharacter)
         return urlString.starts(with: "http://") || urlString.starts(with: "https://")
     }
 
@@ -407,7 +424,7 @@ internal class SwiftySpellCLI {
         var string = string.trimmingCharacters(in: .whitespaces)
 
         if config.rules.contains(.ignoreUrls), isValidURL(string) {
-                return
+            return
         }
         string = cleanString(string)
 
@@ -443,11 +460,16 @@ internal class SwiftySpellCLI {
         }
 
         func checkWord(word: String) {
+            var word = word
+            word = word.remove("\(Constants.possessiveApostrophe)\(Constants.possessiveMarker)")
+                .remove(Constants.possessiveApostrophe)
+
+            var isMisspelledWordCorrected = false
             let corrections = checker.checkAndSuggestCorrections(
                 text: word, languages: config.languages)
             if !corrections.isEmpty {
                 for (misspelledWord, suggestions) in corrections {
-                    if suggestions.isEmpty {
+                    if !withFix, suggestions.isEmpty {
                         print(
                             Constants.getMessage(
                                 .wordIsMisspelled(
@@ -485,15 +507,23 @@ internal class SwiftySpellCLI {
                         }
 
                         if shouldCapitalizeWord || !areWordsInFlatCaseFullyCorrect {
-                            print(
-                                Constants.getMessage(
-                                    .wordIsMisspelledWithSuggestions(
-                                        path: filePath,
-                                        line: line,
-                                        column: currentWordColumn,
-                                        severity: .warning,
-                                        word: misspelledWord,
-                                        suggestions: suggestions)))
+                            if withFix, suggestions.count == 1, let correctWord = suggestions.first {
+                                isMisspelledWordCorrected = renameInFile(
+                                    misspelledWord: misspelledWord,
+                                    correctWord: correctWord,
+                                    filePath: filePath)
+                            }
+                            if !isMisspelledWordCorrected {
+                                print(
+                                    Constants.getMessage(
+                                        .wordIsMisspelledWithSuggestions(
+                                            path: filePath,
+                                            line: line,
+                                            column: currentWordColumn,
+                                            severity: .warning,
+                                            word: misspelledWord,
+                                            suggestions: suggestions)))
+                            }
                         }
                     }
                 }
