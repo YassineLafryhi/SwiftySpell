@@ -461,6 +461,7 @@ internal class SwiftySpellCLI {
 
         func checkWord(word: String) {
             var word = word
+            word = word.trimLastNumbers()
             word = word.remove("\(Constants.possessiveApostrophe)\(Constants.possessiveMarker)")
                 .remove(Constants.possessiveApostrophe)
 

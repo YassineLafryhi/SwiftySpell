@@ -10,7 +10,7 @@ import Commander
 import Foundation
 import Yams
 
-var swiftySpellCLI = SwiftySpellCLI()
+internal var swiftySpellCLI = SwiftySpellCLI()
 
 internal let initCommand = command {
     let currentPath = FileManager.default.currentDirectoryPath

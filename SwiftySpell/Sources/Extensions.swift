@@ -24,6 +24,10 @@ extension String {
     func trim() -> String {
         trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    func trimLastNumbers() -> String {
+        replacingOccurrences(of: "\\d+$", with: String(), options: .regularExpression)
+    }
 }
 
 extension SyntaxProtocol {

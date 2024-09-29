@@ -9,7 +9,7 @@ import Foundation
 
 internal class Constants {
     static let name = "SwiftySpell"
-    static let currentVersion = "0.9.6"
+    static let currentVersion = "0.9.7"
     static let configFileName = ".swiftyspell.yml"
 
     static let defaultLanguage = "en"
@@ -170,7 +170,8 @@ internal class Constants {
         "elem", "tmp", "impl", "params", "auth", "utils",
         "gen", "bg", "buf", "faq", "arch", "archs",
         "expr", "ctx", "grp", "addr", "dst", "proj",
-        "enc", "env", "envs", "attrib", "subdir", "iter"
+        "enc", "env", "envs", "attrib", "subdir", "iter",
+        "inf"
     ]
 
     static let otherWords = [
