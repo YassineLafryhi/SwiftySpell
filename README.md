@@ -2,7 +2,8 @@
 > A tool for checking spelling in Swift code
 
 ![](https://img.shields.io/badge/license-MIT-brown)
-![](https://img.shields.io/badge/version-0.9.6-orange)
+![](https://img.shields.io/badge/version-0.9.7-orange)
+![](https://img.shields.io/badge/Tuist-4.22.0-blue)
 ![](https://img.shields.io/badge/SwiftSyntax-508.0.1-purple)
 ![](https://img.shields.io/badge/Yams-5.0.6-red)
 ![](https://img.shields.io/badge/Commander-0.9.1-green)
@@ -41,23 +42,30 @@ This is an example of the configuration file:
 # Languages to check
 languages:
   - en
+  - en_GB
 
-# Words to ignore
-ignoreList:
-  - iOS
-
-# Regular expressions to exclude
-excludePatterns:
-  - \b[0-9a-fA-F]{6}\b # Color hex codes
-  - \bhttps?:\/\/[^\s]+\b # URLs
-
-# Files to exclude
-excludeFiles:
+# Directories/Files/Regular expressions to exclude
+exclude:
+  - Pods
   - Constants.swift
 
-# Directories to exclude
-excludeDirectories:
-  - Pods # Exclude the Pods directory for a CocoaPods project
+# Rules to apply
+rules:
+  - support_flat_case
+  - support_one_line_comment
+  - support_multi_line_comment
+  - support_british_words
+  - ignore_capitalization
+  - ignore_swift_keywords
+  - ignore_other_words
+  - ignore_shortened_words
+  - ignore_lorem_ipsum
+  - ignore_html_tags
+  - ignore_urls
+
+# Words/Regular expressions to ignore
+ignore:
+  - \b[a-zA-Z]+able\b # Codable, Hashable ... (In Comments)
 ```
 
 ## Usage
@@ -99,8 +107,12 @@ swiftyspell check .
 You can use SwiftySpell as a pre-commit git hook to check spelling before committing your changes. To do so, add the following to the `.git/hooks/pre-commit` file:
 ```shell
 #!/bin/sh
-if [ -n "$(swiftyspell check .)" ]; then
-  echo "Spelling errors found. Please fix them before committing."
+
+output=$(swiftyspell check .)
+count=$(echo "$output" | grep -c "may be misspelled")
+
+if [ $count -gt 0 ]; then
+  echo "Spelling errors found. Please fix them before committing (You can run 'swiftyspell fix .' to fix most of them)."
   exit 1
 fi
 ```
@@ -112,6 +124,7 @@ To build SwiftySpell from source, run the following commands:
 ```shell
 git clone https://github.com/YassineLafryhi/SwiftySpell.git
 cd SwiftySpell
+tuist generate --no-open
 xcodebuild -project SwiftySpell.xcodeproj -scheme SwiftySpell -configuration Release build CONFIGURATION_BUILD_DIR=$(pwd)/Build
 open Build
 # Then you can move Build/SwiftySpell to /usr/local/bin/swiftyspell
