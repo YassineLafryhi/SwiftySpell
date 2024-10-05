@@ -14,6 +14,7 @@ internal class SwiftySpellCLI {
     let config: SwiftySpellConfiguration
     let checker: SwiftySpellChecker
     var withFix = false
+    var misspelledWordsNumber = 0
 
     init(configFilePath: String) {
         config = SwiftySpellConfiguration(configFilePath: configFilePath)
@@ -31,15 +32,50 @@ internal class SwiftySpellCLI {
             ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
     }
 
-    func check(_ directoryPath: String, withFix: Bool) {
+    func check(_ directoryOrSwiftFilePath: String, withFix: Bool) {
         self.withFix = withFix
         do {
-            let swiftFiles = try fetchSwiftFiles(from: directoryPath)
-            for file in swiftFiles {
-                try processFile(file)
+            var swiftFiles: [URL] = []
+            let pathType = Utilities.getPathType(path: directoryOrSwiftFilePath)
+            switch pathType {
+            case .file:
+                let swiftFilePath = directoryOrSwiftFilePath
+                swiftFiles.append(.init(filePath: swiftFilePath))
+            case .directory:
+                let directoryPath = directoryOrSwiftFilePath
+                swiftFiles = try fetchSwiftFiles(from: directoryPath)
+            case .notFound:
+                break
             }
+            let swiftFilesNumber = swiftFiles.count
+            var swiftFilesCounter = 1
+
+            let startAsync = CFAbsoluteTimeGetCurrent()
+
+            let queue = DispatchQueue.global(qos: .userInitiated)
+            let group = DispatchGroup()
+
+            for file in swiftFiles {
+                group.enter()
+                queue.async {
+                    do {
+                        // print("Checking '\(file.lastPathComponent)' (\(swiftFilesCounter)/\(swiftFilesNumber)")
+                        try self.processFile(file)
+                        swiftFilesCounter += 1
+                    } catch {
+                        Utilities.printError(Constants.getMessage(.genericError(error.localizedDescription)))
+                    }
+                    group.leave()
+                }
+            }
+            group.notify(queue: .main) {
+                let endAsync = CFAbsoluteTimeGetCurrent()
+                let elapsedTime = Int(endAsync - startAsync)
+                print(Constants.getMessage(.doneChecking(self.misspelledWordsNumber, elapsedTime)))
+            }
+            dispatchMain()
         } catch {
-            print(Constants.getMessage(.genericError(error.localizedDescription)))
+            Utilities.printError(Constants.getMessage(.genericError(error.localizedDescription)))
         }
     }
 
@@ -479,6 +515,7 @@ internal class SwiftySpellCLI {
                                     column: currentWordColumn,
                                     severity: .warning,
                                     word: misspelledWord)))
+                        misspelledWordsNumber += 1
                     } else {
                         // TODO: For these rules, using the suggestions array is not always sufficient
                         let isIgnoreCapitalizationRuleEnabled = config.rules.contains(.ignoreCapitalization)
@@ -524,6 +561,7 @@ internal class SwiftySpellCLI {
                                             severity: .warning,
                                             word: misspelledWord,
                                             suggestions: suggestions)))
+                                misspelledWordsNumber += 1
                             }
                         }
                     }
@@ -534,7 +572,7 @@ internal class SwiftySpellCLI {
 
     private func getColumn(line: Int, identifier: String, filePath: String) -> Int {
         do {
-            let fileContent = try String(contentsOfFile: filePath)
+            let fileContent = try String(contentsOfFile: filePath, encoding: .utf8)
             let lines = fileContent.components(separatedBy: .newlines)
             let lineContent = lines[line - 1]
             let index =

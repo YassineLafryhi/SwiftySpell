@@ -32,21 +32,18 @@ internal let initCommand = command {
 
 internal let checkCommand = command(
     Argument<String>("path", description: "The project path .")) { path in
-
-    loadConfig(projectPath: path)
+    loadConfig(path)
     swiftySpellCLI.check(path, withFix: false)
 }
 
 internal let fixCommand = command(
-    Argument<String>("path", description: "The project path .")) { path in
-
-    loadConfig(projectPath: path)
+    Argument<String>("path", description: "The project (or Swift file) path .")) { path in
+    loadConfig(path)
     swiftySpellCLI.check(path, withFix: true)
 }
 
 internal let languagesCommand = command {
     let supportedLanguages = NSSpellChecker.shared.availableLanguages
-
     Utilities.printInColors("Supported languages:", color: .green, style: .bold)
     for language in supportedLanguages {
         Utilities.printInColors("  - \(language)", color: .blue, style: .bold)
@@ -65,11 +62,19 @@ internal let versionCommand = command {
     Utilities.printInColors("\(Constants.name) v\(version)", color: .green, style: .bold)
 }
 
-private func loadConfig(projectPath: String) {
+private func loadConfig(_ directoryOrSwiftFilePath: String) {
     let fileManager = FileManager.default
+    var projectPath: String
 
-    if !fileManager.fileExists(atPath: projectPath, isDirectory: nil) {
-        Utilities.printError(Constants.getMessage(.projectPathDoesNotExist))
+    let pathType = Utilities.getPathType(path: directoryOrSwiftFilePath)
+
+    switch pathType {
+    case .file:
+        projectPath = URL(fileURLWithPath: directoryOrSwiftFilePath).deletingLastPathComponent().path
+    case .directory:
+        projectPath = directoryOrSwiftFilePath
+    case .notFound:
+        Utilities.printError(Constants.getMessage(.projectOrSwiftFilePathDoesNotExist))
         exit(1)
     }
 

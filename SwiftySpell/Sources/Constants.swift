@@ -67,7 +67,7 @@ internal class Constants {
     static let varSwiftKeyword = "var"
 
     enum MessageType {
-        case projectPathDoesNotExist
+        case projectOrSwiftFilePathDoesNotExist
         case genericError(_ error: String)
         case configFileCreatedSuccessfully(_ fileName: String)
         case failedToCreateConfigFile(_ fileName: String, _ error: String)
@@ -85,12 +85,13 @@ internal class Constants {
         case capitalizedPairsInIgnoreList(_ pairs: [(String, String)])
         case configLoadingError(_ error: String)
         case unknownRule(_ rule: String)
+        case doneChecking(_ misspelledWordsNumber: Int, _ elapsedTime: Int)
     }
 
     static func getMessage(_ message: MessageType) -> String {
         switch message {
-        case .projectPathDoesNotExist:
-            "The given project path does not exist."
+        case .projectOrSwiftFilePathDoesNotExist:
+            "The given path does not exist."
         case let .configFileCreatedSuccessfully(fileName):
             "\(fileName) config file has been created successfully."
         case let .configFileNotFound(fileName):
@@ -121,6 +122,8 @@ internal class Constants {
             "Error loading configuration: \(error)"
         case let .unknownRule(rule):
             "Unknown rule: \(rule)"
+        case let .doneChecking(misspelledWordsNumber, elapsedTime):
+            "Done checking! Found \(misspelledWordsNumber) misspelled words. Processing took \(elapsedTime) seconds."
         }
     }
 

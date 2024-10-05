@@ -8,6 +8,27 @@
 import Foundation
 
 internal class Utilities {
+    enum PathType {
+        case file
+        case directory
+        case notFound
+    }
+
+    static func getPathType(path: String) -> PathType {
+        let fileManager = FileManager.default
+        var isDirectory: ObjCBool = false
+
+        if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) {
+            if isDirectory.boolValue {
+                return .directory
+            } else {
+                return .file
+            }
+        } else {
+            return .notFound
+        }
+    }
+
     static func doesTerminalSupportANSIColors() -> Bool {
         guard isatty(fileno(stdout)) != 0 else {
             return false

@@ -45,7 +45,7 @@ internal class SwiftySpellConfiguration {
 
     private func loadConfiguration(from filePath: String) {
         do {
-            let fileContents = try String(contentsOfFile: filePath)
+            let fileContents = try String(contentsOfFile: filePath, encoding: .utf8)
             if let yaml = try? Yams.load(yaml: fileContents) as? [String: [String]] {
                 languages = Set(yaml["languages"] ?? [Constants.defaultLanguage])
                 rawIgnoreList = yaml["ignore"] ?? []
