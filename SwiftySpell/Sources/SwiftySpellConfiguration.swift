@@ -127,8 +127,8 @@ internal class SwiftySpellConfiguration {
             }
         }
 
-        if rules.contains(.ignoreOtherWords) {
-            for word in Constants.otherWords {
+        if rules.contains(.ignoreCommonlyUsedWords) {
+            for word in Constants.commonlyUsedWords {
                 ignore.insert(word)
                 ignore.insert(word.capitalized)
             }
@@ -188,7 +188,7 @@ internal class SwiftySpellConfiguration {
         case supportBritishWords = "support_british_words"
         case ignoreSwiftKeywords = "ignore_swift_keywords"
         case ignoreShortenedWords = "ignore_shortened_words"
-        case ignoreOtherWords = "ignore_other_words"
+        case ignoreCommonlyUsedWords = "ignore_commonly_used_words"
         case ignoreLoremIpsum = "ignore_lorem_ipsum"
         case ignoreHtmlTags = "ignore_html_tags"
         case ignoreUrls = "ignore_urls"

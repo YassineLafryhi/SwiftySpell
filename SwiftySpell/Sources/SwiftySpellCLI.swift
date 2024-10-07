@@ -32,7 +32,7 @@ internal class SwiftySpellCLI {
             ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
     }
 
-    func check(_ directoryOrSwiftFilePath: String, withFix: Bool) {
+    func check(_ directoryOrSwiftFilePath: String, withFix: Bool, onlyGitModified: Bool = false) {
         self.withFix = withFix
         do {
             var swiftFiles: [URL] = []
@@ -43,7 +43,11 @@ internal class SwiftySpellCLI {
                 swiftFiles.append(.init(filePath: swiftFilePath))
             case .directory:
                 let directoryPath = directoryOrSwiftFilePath
-                swiftFiles = try fetchSwiftFiles(from: directoryPath)
+                if onlyGitModified {
+                    swiftFiles = getModifiedSwiftFiles(in: directoryPath)
+                } else {
+                    swiftFiles = try fetchSwiftFiles(from: directoryPath)
+                }
             case .notFound:
                 break
             }
@@ -72,6 +76,7 @@ internal class SwiftySpellCLI {
                 let endAsync = CFAbsoluteTimeGetCurrent()
                 let elapsedTime = Int(endAsync - startAsync)
                 print(Constants.getMessage(.doneChecking(self.misspelledWordsNumber, elapsedTime)))
+                exit(0)
             }
             dispatchMain()
         } catch {
@@ -108,6 +113,69 @@ internal class SwiftySpellCLI {
             }
         }
         return swiftFiles
+    }
+
+    private func getModifiedSwiftFiles(in directory: String) -> [URL] {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        task.currentDirectoryURL = URL(fileURLWithPath: directory)
+        task.arguments = ["status", "--porcelain"]
+
+        let pipe = Pipe()
+        task.standardOutput = pipe
+
+        do {
+            try task.run()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            task.waitUntilExit()
+
+            guard let output = String(data: data, encoding: .utf8) else {
+                print("Error: Unable to read git status output")
+                return []
+            }
+
+            let directoryURL = URL(fileURLWithPath: directory)
+
+            let modifiedFiles = output.components(separatedBy: .newlines)
+                .compactMap { line -> URL? in
+                    let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !trimmedLine.isEmpty else {
+                        return nil
+                    }
+
+                    let components = trimmedLine.split(
+                        maxSplits: 1,
+                        omittingEmptySubsequences: true) { $0.isWhitespace }
+                    guard components.count == 2 else {
+                        return nil
+                    }
+
+                    let status = String(components[0])
+                    let filePath = String(components[1]).replace("\"", "")
+
+                    guard filePath.hasSuffix(".swift") else {
+                        return nil
+                    }
+
+                    switch status {
+                    case "M", "A", "MM":
+                        return URL(fileURLWithPath: filePath, relativeTo: directoryURL)
+                    case "R":
+                        let parts = filePath.components(separatedBy: " -> ")
+                        if parts.count == 2, parts[1].hasSuffix(".swift") {
+                            return URL(fileURLWithPath: parts[1], relativeTo: directoryURL)
+                        }
+                        return nil
+                    default:
+                        return nil
+                    }
+                }
+
+            return modifiedFiles
+        } catch {
+            print("Error: \(error.localizedDescription)")
+            return []
+        }
     }
 
     private func shouldExclude(file: URL) -> Bool {

@@ -15,7 +15,7 @@ internal class Constants {
     static let defaultLanguage = "en"
     static let languageCodeOfBritishEnglish = "en_GB"
     static let defaultExcludedDirectories = ["Pods"]
-    static let defaultExcludedFiles = ["Package.swift"]
+    static let defaultExcludedFiles = ["Package.swift", "R.generated.swift"]
 
     static let createdBy = "Created by"
     static let copyright = "Copyright"
@@ -40,7 +40,7 @@ internal class Constants {
           #- support_british_words
           #- ignore_capitalization
           - ignore_swift_keywords
-          - ignore_other_words
+          - ignore_commonly_used_words
           #- ignore_shortened_words
           #- ignore_lorem_ipsum
           #- ignore_html_tags
@@ -177,7 +177,7 @@ internal class Constants {
         "inf"
     ]
 
-    static let otherWords = [
+    static let commonlyUsedWords = [
         "codable", "hashable", "iterable", "diffable", "lhs", "rhs",
         "usleep", "autoreleasepool", "cancellables", "qos", "xcode", "spi",
         "sut", "xcodebuild", "iphone", "ipad", "xcpretty", "tuist",
@@ -199,7 +199,7 @@ internal class Constants {
         "rethrow", "sha512", "bcrypt", "rx", "reactivex", "xcrun",
         "lipo", "xcscheme", "xcarchive", "armv7", "simctl", "otool",
         "iphonesimulator", "appletvos", "interactor", "jwt", "csrf", "iot",
-        "crashlytics", "qr"
+        "crashlytics", "qr", "mqtt"
     ]
 
     static let loremIpsumWords = [
