@@ -196,5 +196,7 @@ internal class SwiftySpellConfiguration {
         // TODO: Add support for these rules
         // case pluralConsistency = "plural_consistency"
         // case homophoneCheck = "homophone_check"
+
+        // TODO: Integrate LanguageTool
     }
 }

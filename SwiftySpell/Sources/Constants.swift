@@ -91,15 +91,15 @@ internal class Constants {
     static func getMessage(_ message: MessageType) -> String {
         switch message {
         case .projectOrSwiftFilePathDoesNotExist:
-            "The given path does not exist."
+            return "The given path does not exist."
         case let .configFileCreatedSuccessfully(fileName):
-            "\(fileName) config file has been created successfully."
+            return "\(fileName) config file has been created successfully."
         case let .configFileNotFound(fileName):
-            "Config file \(fileName) not found in the project path nor in the home directory. Default config will be used."
+            return "Config file \(fileName) not found in the project path nor in the home directory. Default config will be used."
         case let .failedToReadFile(error):
-            "Failed to read file: \(error)"
+            return "Failed to read file: \(error)"
         case let .wordIsMisspelled(path: path, line: line, column: column, severity: severity, word: word):
-            "\(path):\(line):\(column): \(severity): '\(word)' may be misspelled !"
+            return "\(path):\(line):\(column): \(severity): '\(word)' may be misspelled !"
         case let .wordIsMisspelledWithSuggestions(
             path: path,
             line: line,
@@ -107,23 +107,24 @@ internal class Constants {
             severity: severity,
             word: word,
             suggestions: suggestions):
-            "\(path):\(line):\(column): \(severity): '\(word)' may be misspelled, do you mean \(suggestions.map { "'\($0)'" }.joined(separator: ", ")) ?"
+            return "\(path):\(line):\(column): \(severity): '\(word)' may be misspelled, do you mean \(suggestions.map { "'\($0)'" }.joined(separator: ", ")) ?"
         case let .genericError(error):
-            "Error: \(error)"
+            return "Error: \(error)"
         case let .failedToCreateConfigFile(fileName, error):
-            "Error creating \(fileName) config file: \(error)"
+            return "Error creating \(fileName) config file: \(error)"
         case let .duplicatesInIgnoreList(duplicates):
-            "The following words are duplicated in the ignore list and can be removed: \(duplicates.joined(separator: ", "))"
+            let isManyWords = duplicates.count > 1
+            return "The following word\(isManyWords ? "s" : "") \(isManyWords ? "are" : "is") duplicated in the ignore list and can be removed: \(duplicates.joined(separator: ", "))"
         case let .capitalizedPairsInIgnoreList(pairs):
-            "The following word pairs exist in both lowercase and capitalized forms: " +
+            return "The following word pairs exist in both lowercase and capitalized forms: " +
                 pairs.map { "\($0.0) and \($0.1)" }.joined(separator: ", ") +
                 ". The lowercase version is sufficient for \(Constants.name)."
         case let .configLoadingError(error):
-            "Error loading configuration: \(error)"
+            return "Error loading configuration: \(error)"
         case let .unknownRule(rule):
-            "Unknown rule: \(rule)"
+            return "Unknown rule: \(rule)"
         case let .doneChecking(misspelledWordsNumber, elapsedTime):
-            "Done checking! Found \(misspelledWordsNumber) misspelled words. Processing took \(elapsedTime) seconds."
+            return "Done checking! Found \(misspelledWordsNumber) misspelled words. Processing took \(elapsedTime) seconds."
         }
     }
 
@@ -174,7 +175,7 @@ internal class Constants {
         "gen", "bg", "buf", "faq", "arch", "archs",
         "expr", "ctx", "grp", "addr", "dst", "proj",
         "enc", "env", "envs", "attrib", "subdir", "iter",
-        "inf"
+        "inf", "nb", "nbr"
     ]
 
     static let commonlyUsedWords = [
@@ -199,7 +200,7 @@ internal class Constants {
         "rethrow", "sha512", "bcrypt", "rx", "reactivex", "xcrun",
         "lipo", "xcscheme", "xcarchive", "armv7", "simctl", "otool",
         "iphonesimulator", "appletvos", "interactor", "jwt", "csrf", "iot",
-        "crashlytics", "qr", "mqtt"
+        "crashlytics", "qr", "mqtt", "hunspell"
     ]
 
     static let loremIpsumWords = [

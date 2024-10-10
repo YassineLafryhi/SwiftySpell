@@ -37,6 +37,7 @@ internal class SwiftySpellChecker {
     }
 
     func checkAndSuggestCorrections(text: String, languages: Set<String>) -> [String: [String]] {
+        // TODO: Use Hunspell for Linux
         let checker = NSSpellChecker.shared
         var corrections: [String: [String]] = [:]
         var searchRange = NSRange(location: 0, length: text.utf16.count)

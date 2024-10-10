@@ -34,6 +34,7 @@ internal class SwiftySpellCLI {
 
     func check(_ directoryOrSwiftFilePath: String, withFix: Bool, onlyGitModified: Bool = false) {
         self.withFix = withFix
+        // TODO: Add the possibility to take also a whole Swift code as a String parameter and check it
         do {
             var swiftFiles: [URL] = []
             let pathType = Utilities.getPathType(path: directoryOrSwiftFilePath)
@@ -228,6 +229,8 @@ internal class SwiftySpellCLI {
         in visitor: SwiftySpellCodeVisitor,
         filePath: String,
         sourceLocationConverter: SourceLocationConverter) {
+        // TODO: Check Swift file name also
+
         // TODO: Maybe this is no longer needed
         for (identifier, position, kind) in visitor.globalOrConstantVariables {
             if kind == Constants.letSwiftKeyword || kind == Constants.varSwiftKeyword {
