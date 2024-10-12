@@ -4,8 +4,8 @@
 ![](https://img.shields.io/badge/license-MIT-brown)
 ![](https://img.shields.io/badge/version-0.9.7-orange)
 ![](https://img.shields.io/badge/Tuist-4.22.0-blue)
-![](https://img.shields.io/badge/SwiftSyntax-508.0.1-purple)
-![](https://img.shields.io/badge/Yams-5.0.6-red)
+![](https://img.shields.io/badge/SwiftSyntax-600.0.1-purple)
+![](https://img.shields.io/badge/Yams-5.1.3-red)
 ![](https://img.shields.io/badge/Commander-0.9.1-green)
 ![](https://img.shields.io/badge/Xcode-15.2-blue)
 
@@ -68,6 +68,16 @@ ignore:
   - \b[a-zA-Z]+able\b # Codable, Hashable ... (In Comments)
 ```
 
++ You can use a global configuration file for all your projects by placing it in your home directory (`~/.swiftyspell.yml`).
+
++ If you run `swiftyspell check .` without a configuration file, SwiftySpell will use the default configuration, which means it will :
+  - Check spelling in English (en, en_GB).
+  - Exclude the `Pods` directory, and the `Package.swift` and `R.generated.swift` files.
+  - Apply all rules.
+
+## Rules
+To see the list of available rules, run the following command: `swiftyspell rules`.
+
 ## Usage
 
 ### Xcode
@@ -121,13 +131,25 @@ fi
 
 To build SwiftySpell from source, run the following commands:
 
+### Using Xcode
+
 ```shell
 git clone https://github.com/YassineLafryhi/SwiftySpell.git
 cd SwiftySpell
 tuist generate --no-open
-xcodebuild -project SwiftySpell.xcodeproj -scheme SwiftySpell -configuration Release build CONFIGURATION_BUILD_DIR=$(pwd)/Build
+xcodebuild -project SwiftySpell.xcodeproj -scheme SwiftySpellCLI -configuration Release build CONFIGURATION_BUILD_DIR=$(pwd)/Build
 open Build
-# Then you can move Build/SwiftySpell to /usr/local/bin/swiftyspell
+# Then you can move Build/SwiftySpellCLI to /usr/local/bin/swiftyspell
+```
+
+### Using Swift Package Manager
+
+```shell
+git clone https://github.com/YassineLafryhi/SwiftySpell.git
+cd SwiftySpell
+chmod +x build.sh && chmod +x install.sh
+./build.sh
+./install.sh
 ```
 
 ## Contributing

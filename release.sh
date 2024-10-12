@@ -51,8 +51,7 @@ fi
 
 echo "Generating release notes..."
 LATEST_TAG=$(git describe --tags --abbrev=0)
-RELEASE_NOTES=$(git log ${LATEST_TAG}..HEAD --pretty=format:'%s' | grep -E '^(Feat|Fix):' | sed 's/^/* /' | tac)
-
+RELEASE_NOTES=$(git log ${LATEST_TAG}..HEAD --pretty=format:'%s' | grep -E '^(Feat|Fix):' | sed 's/^/+ /' | tail -r)
 if [ -z "$RELEASE_NOTES" ]; then
     RELEASE_NOTES="No new features or fixes in this release."
 fi
