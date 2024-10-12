@@ -34,7 +34,7 @@ extension SyntaxProtocol {
     var isContainedInFunctionBody: Bool {
         var current: SyntaxProtocol? = self
         while let currentNode = current {
-            if currentNode.as(Syntax.self)?.asProtocol(SyntaxProtocol.self) is FunctionDeclSyntax {
+            if Syntax(currentNode).asProtocol(SyntaxProtocol.self) is FunctionDeclSyntax {
                 return true
             }
             current = currentNode.parent

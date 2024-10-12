@@ -1,5 +1,5 @@
 //
-//  SwiftySpellCodeVisitor.swift
+//  CodeVisitor.swift
 //  SwiftySpell
 //
 //  Created by Yassine Lafryhi on 10/8/2024.
@@ -8,7 +8,7 @@
 import Foundation
 import SwiftSyntax
 
-internal class SwiftySpellCodeVisitor: SyntaxVisitor {
+internal class CodeVisitor: SyntaxVisitor {
     var variables: [(String, AbsolutePosition)] = []
     var globalOrConstantVariables:
         [(identifier: String, position: AbsolutePosition, kind: String)] = []
@@ -42,7 +42,7 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     var isAuthorNameAddedToIgnoreList = false
 
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
-        let protocolName = node.identifier.text
+        let protocolName = node.name.text
         let position = node.position
         protocols.append((protocolName, position))
         return .visitChildren
@@ -55,8 +55,8 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
         return .visitChildren
     }
 
-    override func visit(_ node: TypealiasDeclSyntax) -> SyntaxVisitorContinueKind {
-        let typeName = node.identifier.text
+    override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
+        let typeName = node.name.text
         let position = node.position
         typeAliases.append((typeName, position))
         return .visitChildren
@@ -69,12 +69,12 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
 
     override func visit(_ node: EnumCaseDeclSyntax) -> SyntaxVisitorContinueKind {
         for element in node.elements {
-            let caseName = element.identifier.text
+            let caseName = element.name.text
             let position = element.position
             enumCases.append((caseName, position))
 
-            if let associatedValue = element.associatedValue {
-                for parameter in associatedValue.parameterList {
+            if let associatedValue = element.parameterClause {
+                for parameter in associatedValue.parameters {
                     if let firstName = parameter.firstName?.text {
                         let position = parameter.position
                         enumCasesAssociatedValues.append((firstName, position))
@@ -103,9 +103,9 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
 
         if isGlobalOrConstant {
             for binding in node.bindings {
-                if let identifier = binding.pattern.firstToken?.text {
+                if let identifier = binding.pattern.firstToken(viewMode: .sourceAccurate)?.text {
                     let position = binding.position
-                    let kind = node.letOrVarKeyword.text
+                    let kind = node.bindingSpecifier.text
                     globalOrConstantVariables.append((identifier, position, kind))
                 }
             }
@@ -127,7 +127,7 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     }
 
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
-        let structName = node.identifier.text
+        let structName = node.name.text
         let position = node.position
         structs.append((structName, position))
         return .visitChildren
@@ -136,11 +136,10 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
         functions.append(node)
 
-        for parameter in node.signature.input.parameterList {
-            if let argumentLabel = parameter.firstName?.text {
-                let position = parameter.position
-                functionParameters.append((argumentLabel, position))
-            }
+        for parameter in node.signature.parameterClause.parameters {
+            let argumentLabel = parameter.firstName.text
+            let position = parameter.position
+            functionParameters.append((argumentLabel, position))
 
             if let parameterName = parameter.secondName?.text {
                 let position = parameter.position
@@ -159,8 +158,8 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
     override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
         initializers.append(node)
 
-        for parameter in node.signature.input.parameterList {
-            let paramName = parameter.firstName?.text ?? ""
+        for parameter in node.signature.parameterClause.parameters {
+            let paramName = parameter.firstName.text
             let position = parameter.position
             functionParameters.append((paramName, position))
         }
@@ -220,14 +219,14 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
 
     override func visit(_ node: DictionaryElementListSyntax) -> SyntaxVisitorContinueKind {
         for element in node {
-            let keyName = element.keyExpression.description.trimmingCharacters(
+            let keyName = element.key.description.trimmingCharacters(
                 in: CharacterSet(charactersIn: Constants.quoteCharacter))
-            let keyPosition = element.keyExpression.position
+            let keyPosition = element.key.position
             dictionaryKeys.append((keyName, keyPosition))
 
-            let valueName = element.valueExpression.description.trimmingCharacters(
+            let valueName = element.value.description.trimmingCharacters(
                 in: CharacterSet(charactersIn: Constants.quoteCharacter))
-            let valuePosition = element.valueExpression.position
+            let valuePosition = element.value.position
             dictionaryValues.append((valueName, valuePosition))
         }
         return .visitChildren
@@ -235,8 +234,7 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
 
     func extractOneLineComments(from filePath: String) {
         let fileURL = URL(fileURLWithPath: filePath)
-        guard let fileContent = try? String(contentsOf: fileURL) else {
-            Utilities.printError(Constants.getMessage(.failedToReadFile(filePath)))
+        guard let fileContent = try? String(contentsOf: fileURL, encoding: .utf8) else {
             return
         }
         let lines = fileContent.components(separatedBy: .newlines)
@@ -245,9 +243,11 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
         for line in lines {
             lineNumber += 1
             if line.contains(Constants.singleLineCommentStart) {
-                var comment = line
+                var comment = extractOnlyCommentFromLine(line) ?? ""
                 if line.hasPrefix("\(Constants.singleLineCommentStart)\(Constants.spaceCharacter)") {
                     comment = String(line.dropFirst(3))
+                } else {
+                    comment = String(comment.dropFirst(3))
                 }
 
                 comment = comment.trim()
@@ -275,10 +275,22 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
         }
     }
 
+    private func extractOnlyCommentFromLine(_ codeLine: String) -> String? {
+        guard let commentStartIndex = codeLine.firstIndex(of: "/") else {
+            return nil
+        }
+
+        let nextIndex = codeLine.index(after: commentStartIndex)
+        if nextIndex < codeLine.endIndex, codeLine[nextIndex] == "/" {
+            return String(codeLine[commentStartIndex...]).trimmingCharacters(in: .whitespaces)
+        }
+
+        return nil
+    }
+
     func extractMultiLineComments(from filePath: String) {
         let fileURL = URL(fileURLWithPath: filePath)
-        guard let fileContent = try? String(contentsOf: fileURL) else {
-            Utilities.printError(Constants.getMessage(.failedToReadFile(filePath)))
+        guard let fileContent = try? String(contentsOf: fileURL, encoding: .utf8) else {
             return
         }
         let lines = fileContent.components(separatedBy: .newlines)
@@ -290,16 +302,23 @@ internal class SwiftySpellCodeVisitor: SyntaxVisitor {
             lineNumber += 1
             if line.contains(Constants.blockCommentStart) {
                 isMultiLineComment = true
-                multiLineComment.append((line, lineNumber))
+                if line.trim() == Constants.blockCommentStart {
+                    continue
+                }
             }
 
             if isMultiLineComment {
-                multiLineComment.append((line, lineNumber))
+                if line.trim() != Constants.blockCommentEnd {
+                    var lineComment = line.replace(Constants.blockCommentStart, Constants.emptyString)
+                    lineComment = line.replace(Constants.blockCommentEnd, Constants.emptyString)
+                    multiLineComment.append((lineComment, lineNumber))
+                }
             }
 
             if line.contains(Constants.blockCommentEnd) {
                 isMultiLineComment = false
                 multiLineComments.append(multiLineComment)
+                multiLineComment = [(String, Int)]()
             }
         }
     }

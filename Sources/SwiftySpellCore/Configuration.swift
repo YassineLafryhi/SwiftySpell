@@ -1,5 +1,5 @@
 //
-//  SwiftySpellConfiguration.swift
+//  Configuration.swift
 //  SwiftySpell
 //
 //  Created by Yassine Lafryhi on 10/8/2024.
@@ -8,7 +8,7 @@
 import Foundation
 import Yams
 
-internal class SwiftySpellConfiguration {
+public class Configuration {
     var languages: Set<String> = []
     var exclude: Set<String> = []
     var rules: Set<SupportedRule> = []
@@ -33,17 +33,19 @@ internal class SwiftySpellConfiguration {
         for file in Constants.defaultExcludedFiles {
             exclude.insert(file)
         }
-        for rule in SwiftySpellConfiguration.SupportedRule.allCases {
+        for rule in Configuration.SupportedRule.allCases {
             rulesSet.insert(rule.rawValue)
         }
-        prepareConfiguration()
+
+        let result = prepareConfiguration()
+        print(Constants.getMessage(result))
     }
 
     init(configFilePath: String) {
         loadConfiguration(from: configFilePath)
     }
 
-    private func loadConfiguration(from filePath: String) {
+    private func loadConfiguration(from filePath: String) -> Constants.MessageType {
         do {
             let fileContents = try String(contentsOfFile: filePath, encoding: .utf8)
             if let yaml = try? Yams.load(yaml: fileContents) as? [String: [String]] {
@@ -53,20 +55,19 @@ internal class SwiftySpellConfiguration {
                 rulesSet = Set(yaml["rules"] ?? [])
             }
 
-            prepareConfiguration()
-
+            let result = prepareConfiguration()
+            return result
         } catch {
-            Utilities.printError(
-                Constants.getMessage(.configLoadingError(error.localizedDescription)))
+            return .configLoadingError(error.localizedDescription)
         }
     }
 
-    private func prepareConfiguration() {
+    private func prepareConfiguration() -> Constants.MessageType {
         for element in rulesSet {
             if let rule = SupportedRule(rawValue: element) {
                 rules.insert(rule)
             } else {
-                Utilities.printWarning(Constants.getMessage(.unknownRule(element)))
+                return .unknownRule(element)
             }
         }
 
@@ -153,14 +154,14 @@ internal class SwiftySpellConfiguration {
         }
 
         if !duplicates.isEmpty {
-            Utilities.printWarning(
-                Constants.getMessage(.duplicatesInIgnoreList(duplicates)))
+            return .duplicatesInIgnoreList(duplicates)
         }
 
         if !capitalizedPairs.isEmpty {
-            Utilities.printWarning(
-                Constants.getMessage(.capitalizedPairsInIgnoreList(capitalizedPairs)))
+            return .capitalizedPairsInIgnoreList(capitalizedPairs)
         }
+
+        return .success
     }
 
     private func isValidRegex(_ pattern: String) -> Bool {

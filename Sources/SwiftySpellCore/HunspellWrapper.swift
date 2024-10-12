@@ -7,7 +7,7 @@
 
 import Foundation
 
-class HunspellWrapper {
+internal class HunspellWrapper {
     private let hunspellPath = "/opt/homebrew/bin/hunspell"
     private let dictionaryPath = "Library/Spelling"
 

@@ -8,6 +8,9 @@ exclude:
   - Tests
   - Build
   - Constants.swift
+  - Utilities.swift
+  - SwiftCodesForTests.swift
+  - Package.swift
   - Project.swift
 
 # Rules to apply

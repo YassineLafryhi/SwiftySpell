@@ -7,10 +7,10 @@
 
 import Foundation
 
-internal class Constants {
-    static let name = "SwiftySpell"
-    static let currentVersion = "0.9.7"
-    static let configFileName = ".swiftyspell.yml"
+public class Constants {
+    public static let name = "SwiftySpell"
+    public static let currentVersion = "0.9.7"
+    public static let configFileName = ".swiftyspell.yml"
 
     static let defaultLanguage = "en"
     static let languageCodeOfBritishEnglish = "en_GB"
@@ -57,6 +57,7 @@ internal class Constants {
     static let singleLineCommentStart = "//"
     static let quoteCharacter = "\""
     static let spaceCharacter = " "
+    static let emptyString = ""
     static let newLineCharacter = "\\n"
     static let tabCharacter = "\\t"
     static let possessiveApostrophe = "'"
@@ -66,19 +67,19 @@ internal class Constants {
     static let letSwiftKeyword = "let"
     static let varSwiftKeyword = "var"
 
-    enum MessageType {
+    public enum MessageType {
         case projectOrSwiftFilePathDoesNotExist
         case genericError(_ error: String)
         case configFileCreatedSuccessfully(_ fileName: String)
         case failedToCreateConfigFile(_ fileName: String, _ error: String)
         case configFileNotFound(_ fileName: String)
         case failedToReadFile(_ error: String)
-        case wordIsMisspelled(path: String, line: Int, column: Int, severity: Severity, word: String)
+        case wordIsMisspelled(path: String, line: Int, column: Int, severity: String, word: String)
         case wordIsMisspelledWithSuggestions(
             path: String,
             line: Int,
             column: Int,
-            severity: Severity,
+            severity: String,
             word: String,
             suggestions: [String])
         case duplicatesInIgnoreList(_ duplicates: Set<String>)
@@ -86,19 +87,28 @@ internal class Constants {
         case configLoadingError(_ error: String)
         case unknownRule(_ rule: String)
         case doneChecking(_ misspelledWordsNumber: Int, _ elapsedTime: Int)
+        case doneCheckingAndCorrecting(_ misspelledWordsNumber: Int, _ correctedWordsNumber: Int, _ elapsedTime: Int)
+        case success
     }
 
-    static func getMessage(_ message: MessageType) -> String {
+    enum Severity: String {
+        case error
+        case warning
+    }
+
+    static func getMessage(_ message: Constants.MessageType) -> String {
         switch message {
         case .projectOrSwiftFilePathDoesNotExist:
             return "The given path does not exist."
         case let .configFileCreatedSuccessfully(fileName):
             return "\(fileName) config file has been created successfully."
         case let .configFileNotFound(fileName):
-            return "Config file \(fileName) not found in the project path nor in the home directory. Default config will be used."
+            return
+                "Config file \(fileName) not found in the project path nor in the home directory. Default config will be used."
         case let .failedToReadFile(error):
             return "Failed to read file: \(error)"
-        case let .wordIsMisspelled(path: path, line: line, column: column, severity: severity, word: word):
+        case let .wordIsMisspelled(
+            path: path, line: line, column: column, severity: severity, word: word):
             return "\(path):\(line):\(column): \(severity): '\(word)' may be misspelled !"
         case let .wordIsMisspelledWithSuggestions(
             path: path,
@@ -107,52 +117,32 @@ internal class Constants {
             severity: severity,
             word: word,
             suggestions: suggestions):
-            return "\(path):\(line):\(column): \(severity): '\(word)' may be misspelled, do you mean \(suggestions.map { "'\($0)'" }.joined(separator: ", ")) ?"
+            return
+                "\(path):\(line):\(column): \(severity): '\(word)' may be misspelled, do you mean \(suggestions.map { "'\($0)'" }.joined(separator: ", ")) ?"
         case let .genericError(error):
             return "Error: \(error)"
         case let .failedToCreateConfigFile(fileName, error):
             return "Error creating \(fileName) config file: \(error)"
         case let .duplicatesInIgnoreList(duplicates):
             let isManyWords = duplicates.count > 1
-            return "The following word\(isManyWords ? "s" : "") \(isManyWords ? "are" : "is") duplicated in the ignore list and can be removed: \(duplicates.joined(separator: ", "))"
+            return
+                "The following word\(isManyWords ? "s" : "") \(isManyWords ? "are" : "is") duplicated in the ignore list and can be removed: \(duplicates.joined(separator: ", "))"
         case let .capitalizedPairsInIgnoreList(pairs):
-            return "The following word pairs exist in both lowercase and capitalized forms: " +
-                pairs.map { "\($0.0) and \($0.1)" }.joined(separator: ", ") +
-                ". The lowercase version is sufficient for \(Constants.name)."
+            return "The following word pairs exist in both lowercase and capitalized forms: "
+                + pairs.map { "\($0.0) and \($0.1)" }.joined(separator: ", ")
+                + ". The lowercase version is sufficient for \(Constants.name)."
         case let .configLoadingError(error):
             return "Error loading configuration: \(error)"
         case let .unknownRule(rule):
             return "Unknown rule: \(rule)"
         case let .doneChecking(misspelledWordsNumber, elapsedTime):
-            return "Done checking! Found \(misspelledWordsNumber) misspelled words. Processing took \(elapsedTime) seconds."
+            return
+                "Done checking! Found \(misspelledWordsNumber) misspelled words. Processing took \(elapsedTime) seconds."
+        case .success:
+            return ""
+        case let .doneCheckingAndCorrecting(misspelledWordsNumber, correctedWordsNumber, elapsedTime):
+            return "Done checking and correcting! Found \(misspelledWordsNumber) misspelled words. Corrected \(correctedWordsNumber) Words. Processing took \(elapsedTime) seconds."
         }
-    }
-
-    static let supportingTerms = [
-        "xterm-color", "xterm-256color", "screen", "screen-256color", "ansi", "linux", "vt100"
-    ]
-
-    enum ANSIColor: String {
-        case black = "\u{001B}[0;30m"
-        case red = "\u{001B}[0;31m"
-        case green = "\u{001B}[0;32m"
-        case yellow = "\u{001B}[0;33m"
-        case blue = "\u{001B}[0;34m"
-        case magenta = "\u{001B}[0;35m"
-        case cyan = "\u{001B}[0;36m"
-        case white = "\u{001B}[0;37m"
-        case reset = "\u{001B}[0m"
-        case teal = "\u{001B}[38;5;6m"
-    }
-
-    enum TextStyle {
-        case normal
-        case bold
-    }
-
-    enum Severity: String {
-        case error
-        case warning
     }
 
     static let swiftKeywords = [

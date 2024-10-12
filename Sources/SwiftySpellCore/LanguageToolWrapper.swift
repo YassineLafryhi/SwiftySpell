@@ -7,7 +7,7 @@
 
 import Foundation
 
-class LanguageToolWrapper {
+internal class LanguageToolWrapper {
     private let languageToolPath = "/opt/homebrew/bin/languagetool"
 
     func checkText(_ text: String, languageCode: String) -> String {

@@ -1,6 +1,6 @@
 # swiftlint rules
 included: # paths to include during linting. `--path` is ignored if present.
-  - ./SwiftySpell
+  - ./Sources
 
 excluded: # paths to ignore during linting. Takes precedence over `included`.
   - ./Build
@@ -8,6 +8,7 @@ excluded: # paths to ignore during linting. Takes precedence over `included`.
 disabled_rules:
   - explicit_type_interface
   - explicit_enum_raw_value
+  - no_string_literals
 
 opt_in_rules:
   - array_init

@@ -31,21 +31,22 @@ let runPeriphery = TargetScript.pre(
 let project = Project(
     name: name,
     packages: [
-        .package(url: "https://github.com/apple/swift-syntax.git", from: "508.0.1"),
-        .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
-        .package(url: "https://github.com/kylef/Commander.git", from: "0.9.1")
+        .package(url: "https://github.com/apple/swift-syntax.git", .exact("600.0.1")),
+        .package(url: "https://github.com/jpsim/Yams.git", .exact("5.1.3")),
+        .package(url: "https://github.com/kylef/Commander.git", .exact("0.9.1"))
     ],
     settings: .settings(
         base: [
-            "DEVELOPMENT_TEAM": "55DHYS5FJZ"
+            "DEVELOPMENT_TEAM": "55DHYS5FJZ",
+            "MACOSX_DEPLOYMENT_TARGET": "13.0"
         ]),
     targets: [
         .target(
-            name: name,
+            name: "\(name)CLI",
             destinations: .macOS,
             product: .commandLineTool,
-            bundleId: "io.github.yassinelafryhi.\(name)",
-            sources: ["\(name)/Sources/**"],
+            bundleId: "io.github.yassinelafryhi.\(name)CLI",
+            sources: ["Sources/\(name)CLI/**"],
             scripts: [
                 setupGitHooks,
                 runSwiftFormat,
@@ -54,10 +55,42 @@ let project = Project(
                 runPeriphery
             ],
             dependencies: [
-                .package(product: "SwiftSyntax"),
-                .package(product: "SwiftSyntaxParser"),
-                .package(product: "Yams"),
+                .target(name: "\(name)Core"),
                 .package(product: "Commander")
+            ]),
+        .target(
+            name: "\(name)Core",
+            destinations: .macOS,
+            product: .framework,
+            bundleId: "io.github.yassinelafryhi.\(name)Core",
+            sources: ["Sources/\(name)Core/**"],
+            scripts: [
+                setupGitHooks,
+                runSwiftFormat,
+                runSwiftLint,
+                runSwiftySpell
+                // runPeriphery
+            ],
+            dependencies: [
+                .package(product: "SwiftSyntax"),
+                .package(product: "SwiftParser"),
+                .package(product: "Yams")
+            ]),
+        .target(
+            name: "\(name)Tests",
+            destinations: .macOS,
+            product: .unitTests,
+            bundleId: "io.github.yassinelafryhi.\(name)Tests",
+            sources: ["Tests/\(name)Tests/**"],
+            scripts: [
+                setupGitHooks,
+                runSwiftFormat,
+                runSwiftLint,
+                runSwiftySpell
+                // runPeriphery,
+            ],
+            dependencies: [
+                .target(name: "\(name)Core")
             ])
     ])
 

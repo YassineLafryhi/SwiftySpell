@@ -1,5 +1,5 @@
 //
-//  SwiftySpellChecker.swift
+//  WordChecker.swift
 //  SwiftySpell
 //
 //  Created by Yassine Lafryhi on 10/8/2024.
@@ -8,7 +8,7 @@
 import AppKit
 import Foundation
 
-internal class SwiftySpellChecker {
+internal class WordChecker {
     var ignoredWords: Set<String> = []
     var ignoredPatternsOfWords: [NSRegularExpression] = []
     var ignoredPatternsOfFilesOrDirectories: [NSRegularExpression] = []

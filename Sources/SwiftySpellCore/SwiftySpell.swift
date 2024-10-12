@@ -1,43 +1,76 @@
 //
-//  SwiftySpellCLI.swift
+//  SwiftySpell.swift
 //  SwiftySpell
 //
 //  Created by Yassine Lafryhi on 10/8/2024.
 //
 
+import AppKit
 import Foundation
+import SwiftParser
 import SwiftSyntax
-import SwiftSyntaxParser
 
-internal class SwiftySpellCLI {
+public class SwiftySpell {
     let fileManager = FileManager.default
-    let config: SwiftySpellConfiguration
-    let checker: SwiftySpellChecker
+    public let config: Configuration
+    let checker: WordChecker
     var withFix = false
-    var misspelledWordsNumber = 0
+    public var misspelledWordsNumber = 0
+    public var correctedWordsNumber = 0
+    var allMisspelledWords: [String] = []
+    public typealias CompletionHandler = () -> Void
+    private var completionHandler: CompletionHandler?
 
-    init(configFilePath: String) {
-        config = SwiftySpellConfiguration(configFilePath: configFilePath)
-        checker = SwiftySpellChecker(
+    public init(configFilePath: String) {
+        config = Configuration(configFilePath: configFilePath)
+        checker = WordChecker(
             ignoredWords: config.ignore,
             ignoredPatternsOfWords: config.ignoredPatternsOfWords,
             ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
     }
 
-    init() {
-        config = SwiftySpellConfiguration()
-        checker = SwiftySpellChecker(
+    public init() {
+        config = Configuration()
+        checker = WordChecker(
             ignoredWords: config.ignore,
             ignoredPatternsOfWords: config.ignoredPatternsOfWords,
             ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
     }
 
-    func check(_ directoryOrSwiftFilePath: String, withFix: Bool, onlyGitModified: Bool = false) {
+    public func getCurrentVersion() -> String {
+        Constants.currentVersion
+    }
+
+    public func getSupportedLanguages() -> [String] {
+        NSSpellChecker.shared.availableLanguages
+    }
+
+    public func getSupportedRules() -> [String] {
+        Configuration.SupportedRule.allCases.map { $0.rawValue }
+    }
+
+    public func createConfigFile(at currentPath: String) -> Constants.MessageType {
+        do {
+            let filePath = "\(currentPath)/\(Constants.configFileName)"
+            try Constants.sampleConfig.write(toFile: filePath, atomically: true, encoding: .utf8)
+            return .configFileCreatedSuccessfully(Constants.configFileName)
+        } catch {
+            return .failedToCreateConfigFile(Constants.configFileName, error.localizedDescription)
+        }
+    }
+
+    public func check(
+        _ directoryOrSwiftFilePath: String,
+        withFix: Bool,
+        isRunningFromCLI: Bool = true,
+        onlyGitModified: Bool = false,
+        completion: @escaping CompletionHandler) {
         self.withFix = withFix
+        completionHandler = completion
         // TODO: Add the possibility to take also a whole Swift code as a String parameter and check it
         do {
             var swiftFiles: [URL] = []
-            let pathType = Utilities.getPathType(path: directoryOrSwiftFilePath)
+            let pathType = getPathType(path: directoryOrSwiftFilePath)
             switch pathType {
             case .file:
                 let swiftFilePath = directoryOrSwiftFilePath
@@ -55,33 +88,31 @@ internal class SwiftySpellCLI {
             let swiftFilesNumber = swiftFiles.count
             var swiftFilesCounter = 1
 
-            let startAsync = CFAbsoluteTimeGetCurrent()
-
             let queue = DispatchQueue.global(qos: .userInitiated)
             let group = DispatchGroup()
 
             for file in swiftFiles {
                 group.enter()
                 queue.async {
+                    defer { group.leave() }
+
                     do {
                         // print("Checking '\(file.lastPathComponent)' (\(swiftFilesCounter)/\(swiftFilesNumber)")
                         try self.processFile(file)
                         swiftFilesCounter += 1
                     } catch {
-                        Utilities.printError(Constants.getMessage(.genericError(error.localizedDescription)))
+                        // Utilities.printError(Constants.getMessage(.genericError(error.localizedDescription)))
                     }
-                    group.leave()
                 }
             }
-            group.notify(queue: .main) {
-                let endAsync = CFAbsoluteTimeGetCurrent()
-                let elapsedTime = Int(endAsync - startAsync)
-                print(Constants.getMessage(.doneChecking(self.misspelledWordsNumber, elapsedTime)))
-                exit(0)
+            group.notify(queue: .main) { [weak self] in
+                self?.completionHandler?()
             }
-            dispatchMain()
+            if isRunningFromCLI {
+                dispatchMain()
+            }
         } catch {
-            Utilities.printError(Constants.getMessage(.genericError(error.localizedDescription)))
+            // Utilities.printError(Constants.getMessage(.genericError(error.localizedDescription)))
         }
     }
 
@@ -114,6 +145,27 @@ internal class SwiftySpellCLI {
             }
         }
         return swiftFiles
+    }
+
+    private enum PathType {
+        case file
+        case directory
+        case notFound
+    }
+
+    private func getPathType(path: String) -> PathType {
+        let fileManager = FileManager.default
+        var isDirectory: ObjCBool = false
+
+        if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) {
+            if isDirectory.boolValue {
+                return .directory
+            } else {
+                return .file
+            }
+        } else {
+            return .notFound
+        }
     }
 
     private func getModifiedSwiftFiles(in directory: String) -> [URL] {
@@ -198,14 +250,15 @@ internal class SwiftySpellCLI {
     }
 
     private func processFile(_ url: URL) throws {
-        let sourceFile = try SyntaxParser.parse(url)
-        let visitor = SwiftySpellCodeVisitor(viewMode: .all)
+        let source = try String(contentsOf: url, encoding: .utf8)
+        let sourceFile = Parser.parse(source: source)
+        let visitor = CodeVisitor(viewMode: .all)
         visitor.walk(sourceFile)
         // TODO: Add comment rule check here
         visitor.extractOneLineComments(from: url.path)
         visitor.extractMultiLineComments(from: url.path)
 
-        let sourceLocationConverter = SourceLocationConverter(file: url.path, tree: sourceFile)
+        let sourceLocationConverter = SourceLocationConverter(fileName: url.path, tree: sourceFile)
         checkSpelling(
             in: visitor,
             filePath: url.path,
@@ -226,21 +279,21 @@ internal class SwiftySpellCLI {
     }
 
     private func checkSpelling(
-        in visitor: SwiftySpellCodeVisitor,
+        in visitor: CodeVisitor,
         filePath: String,
         sourceLocationConverter: SourceLocationConverter) {
         // TODO: Check Swift file name also
 
         // TODO: Maybe this is no longer needed
-        for (identifier, position, kind) in visitor.globalOrConstantVariables {
-            if kind == Constants.letSwiftKeyword || kind == Constants.varSwiftKeyword {
-                processSpelling(
-                    for: identifier,
-                    position: position,
-                    filePath: filePath,
-                    sourceLocationConverter: sourceLocationConverter)
-            }
-        }
+        /* for (identifier, position, kind) in visitor.globalOrConstantVariables {
+             if kind == Constants.letSwiftKeyword || kind == Constants.varSwiftKeyword {
+                 processSpelling(
+                     for: identifier,
+                     position: position,
+                     filePath: filePath,
+                     sourceLocationConverter: sourceLocationConverter)
+             }
+         } */
 
         for (variable, position) in visitor.variables {
             processSpelling(
@@ -283,7 +336,7 @@ internal class SwiftySpellCLI {
         }
 
         for node in visitor.enums {
-            let enumName = node.identifier.text
+            let enumName = node.name.text
             let startLocation = node.startLocation(converter: sourceLocationConverter)
             processSpelling(
                 for: enumName,
@@ -319,7 +372,7 @@ internal class SwiftySpellCLI {
         }
 
         for node in visitor.classes {
-            let className = node.identifier.text
+            let className = node.name.text
             let startLocation = node.startLocation(converter: sourceLocationConverter)
             processSpelling(
                 for: className,
@@ -337,7 +390,7 @@ internal class SwiftySpellCLI {
         }
 
         for node in visitor.functions {
-            let functionName = node.identifier.text
+            let functionName = node.name.text
             let startLocation = node.startLocation(converter: sourceLocationConverter)
             processSpelling(
                 for: functionName,
@@ -357,7 +410,7 @@ internal class SwiftySpellCLI {
         }
 
         for node in visitor.attributes {
-            let attributeName = node.attributeName.text
+            let attributeName = node.attributeName.description
             let startLocation = node.startLocation(converter: sourceLocationConverter)
             processSpelling(
                 for: attributeName,
@@ -367,7 +420,7 @@ internal class SwiftySpellCLI {
         }
 
         for node in visitor.customOperators {
-            let operatorName = node.identifier.text
+            let operatorName = node.name.text
             let startLocation = node.startLocation(converter: sourceLocationConverter)
             processSpelling(
                 for: operatorName,
@@ -393,8 +446,8 @@ internal class SwiftySpellCLI {
         }
 
         for node in visitor.subscripts {
-            for parameter in node.indices.parameterList {
-                let paramName = parameter.firstName?.text ?? parameter.secondName?.text ?? ""
+            for parameter in node.parameterClause.parameters {
+                let paramName = parameter.firstName.text ?? parameter.secondName?.text ?? ""
                 if !paramName.isEmpty {
                     let startLocation = parameter.startLocation(converter: sourceLocationConverter)
                     processSpelling(
@@ -404,19 +457,18 @@ internal class SwiftySpellCLI {
                         sourceLocationConverter: sourceLocationConverter)
                 }
 
-                if let type = parameter.type {
-                    let typeName = type.description.trimmingCharacters(in: .whitespaces)
-                    let startLocation = type.startLocation(converter: sourceLocationConverter)
-                    processSpelling(
-                        for: typeName,
-                        startLocation: startLocation,
-                        filePath: filePath,
-                        sourceLocationConverter: sourceLocationConverter)
-                }
+                let type = parameter.type
+                let typeName = type.description.trimmingCharacters(in: .whitespaces)
+                let startLocation = type.startLocation(converter: sourceLocationConverter)
+                processSpelling(
+                    for: typeName,
+                    startLocation: startLocation,
+                    filePath: filePath,
+                    sourceLocationConverter: sourceLocationConverter)
             }
 
-            let returnClause = node.result
-            let returnTypeName = returnClause.returnType.description.trimmingCharacters(
+            let returnClause = node.returnClause
+            let returnTypeName = returnClause.type.description.trimmingCharacters(
                 in: .whitespaces)
             let startLocation = returnClause.startLocation(converter: sourceLocationConverter)
             processSpelling(
@@ -519,8 +571,8 @@ internal class SwiftySpellCLI {
         var column: Int
         if let position = position {
             let sourceLocation = sourceLocationConverter.location(for: position)
-            line = sourceLocation.line ?? 0
-            column = sourceLocation.column ?? 0
+            line = sourceLocation.line
+            column = sourceLocation.column
         } else {
             line = startLocation?.line ?? 0
             column = getColumn(line: line, identifier: string, filePath: filePath)
@@ -553,9 +605,7 @@ internal class SwiftySpellCLI {
                 }
             }
         } else {
-            /* if string.starts(with: "\"") {
-                 currentWordColumn += 1
-             } */
+            let string = string.replace(Constants.quoteCharacter, Constants.emptyString)
             let allWords = splitCamelCaseString(string)
             for word in allWords {
                 let elements = splitStringByDelimiters(word)
@@ -584,12 +634,14 @@ internal class SwiftySpellCLI {
                                     path: filePath,
                                     line: line,
                                     column: currentWordColumn,
-                                    severity: .warning,
+                                    severity: Constants.Severity.warning.rawValue,
                                     word: misspelledWord)))
+                        allMisspelledWords.append(misspelledWord)
                         misspelledWordsNumber += 1
                     } else {
                         // TODO: For these rules, using the suggestions array is not always sufficient
-                        let isIgnoreCapitalizationRuleEnabled = config.rules.contains(.ignoreCapitalization)
+                        let isIgnoreCapitalizationRuleEnabled = config.rules.contains(
+                            .ignoreCapitalization)
                         let isSupportFlatCaseRuleEnabled = config.rules.contains(.supportFlatCase)
 
                         var shouldCapitalizeWord = false
@@ -629,10 +681,13 @@ internal class SwiftySpellCLI {
                                             path: filePath,
                                             line: line,
                                             column: currentWordColumn,
-                                            severity: .warning,
+                                            severity: Constants.Severity.warning.rawValue,
                                             word: misspelledWord,
                                             suggestions: suggestions)))
+                                allMisspelledWords.append(misspelledWord)
                                 misspelledWordsNumber += 1
+                            } else {
+                                correctedWordsNumber += 1
                             }
                         }
                     }
@@ -650,8 +705,9 @@ internal class SwiftySpellCLI {
                 lineContent.range(of: identifier)?.lowerBound.utf16Offset(in: lineContent) ?? 0
             return index + 1
         } catch {
-            Utilities.printError(
-                Constants.getMessage(.failedToReadFile(error.localizedDescription)))
+            // TODO: Fix this
+            // Utilities.printError(
+            // Constants.getMessage(.failedToReadFile(error.localizedDescription)))
         }
         return 1
     }
