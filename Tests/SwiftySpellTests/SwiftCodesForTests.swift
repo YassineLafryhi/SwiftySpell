@@ -21,6 +21,16 @@ internal class SwiftCodesForTests {
         let misspelledWords = ["occurence"]
         return .init(code: code, misspelledWords: misspelledWords)
     }
+    
+    public static func forStrings() -> SwiftCodesForTests {
+        let code = """
+            var firstString = "This is a misppeled text"
+            firstString = "There is no spelling error in these words: isn't, aren't, wasn't, weren't, don't, doesn't, didn't, hasn't, haven't, hadn't, I'm, you're, they're, we're, he's, she's, it's, I've, you've, they've, I'll, you'll, they'll, I'd, you'd, they'd"
+            firstString = "the config is sucessfuly checked"
+            """
+        let misspelledWords = ["misppeled", "sucessfuly"]
+        return .init(code: code, misspelledWords: misspelledWords)
+    }
 
     public static func forEnumCases() -> SwiftCodesForTests {
         let code = """

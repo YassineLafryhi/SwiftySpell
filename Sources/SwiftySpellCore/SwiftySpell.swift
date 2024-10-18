@@ -9,6 +9,7 @@ import AppKit
 import Foundation
 import SwiftParser
 import SwiftSyntax
+import SwiftParserDiagnostics
 
 public class SwiftySpell {
     let fileManager = FileManager.default
@@ -597,6 +598,9 @@ public class SwiftySpell {
                 for part in wordParts {
                     let elements = splitStringByDelimiters(part)
                     for element in elements {
+                        if isEnglishContraction(element) {
+                            continue
+                        }
                         currentWordColumn = getColumn(
                             line: line, identifier: element, filePath: filePath)
                         checkWord(word: element)
@@ -620,9 +624,13 @@ public class SwiftySpell {
             var word = word
             word = word.trimLastNumbers()
             word = word.remove("\(Constants.possessiveApostrophe)\(Constants.possessiveMarker)")
-                .remove(Constants.possessiveApostrophe)
+            word = word.remove(Constants.possessiveApostrophe)
+            word = word.remove(Constants.quoteCharacter)
+            
+            if word.isEmpty { return }
 
             var isMisspelledWordCorrected = false
+            // TODO: Complete integrating checkAndSuggestCorrectionsWithHunspell
             let corrections = checker.checkAndSuggestCorrections(
                 text: word, languages: config.languages)
             if !corrections.isEmpty {
@@ -694,6 +702,43 @@ public class SwiftySpell {
                 }
             }
         }
+    }
+    
+    // TOOO: To be made private
+    public func isValidSwiftCode(_ code: String) -> Bool {
+        do {
+            let sourceFile = Parser.parse(source: code)
+            let diagnostics = ParseDiagnosticsGenerator.diagnostics(for: sourceFile)
+            return diagnostics.isEmpty
+        } catch {
+            return false
+        }
+    }
+    
+    private func isEnglishContraction(_ word: String) -> Bool {
+        guard word.contains("'") else {
+            return false
+        }
+        
+        let lowercasedWord = word.lowercased()
+        
+        if lowercasedWord.hasSuffix(Constants.negativeContraction) {
+            let verbPart = String(lowercasedWord.dropLast(3))
+           
+            return Constants.validVerbs.contains(verbPart)
+        }
+        
+        if Constants.pronounContractions.contains(where: lowercasedWord.hasSuffix) {
+            let pronounPart = String(lowercasedWord.dropLast(2))
+           
+            return Constants.validPronouns.contains(pronounPart)
+        }
+        
+        if Constants.specificContractions.contains(lowercasedWord) {
+            return true
+        }
+
+        return false
     }
 
     private func getColumn(line: Int, identifier: String, filePath: String) -> Int {

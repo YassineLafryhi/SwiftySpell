@@ -1,0 +1,5 @@
+module CHunspell [system] {
+    header "/opt/homebrew/Cellar/hunspell/1.7.2/include/hunspell/hunspell.h"
+    link "hunspell-1.7.2"
+    export *
+}

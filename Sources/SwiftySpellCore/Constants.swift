@@ -11,6 +11,7 @@ public class Constants {
     public static let name = "SwiftySpell"
     public static let currentVersion = "0.9.7"
     public static let configFileName = ".swiftyspell.yml"
+    public static let releasesURL = "https://api.github.com/repos/YassineLafryhi/SwiftySpell/releases/latest"
 
     static let defaultLanguage = "en"
     static let languageCodeOfBritishEnglish = "en_GB"
@@ -63,6 +64,7 @@ public class Constants {
     static let possessiveApostrophe = "'"
     static let possessiveMarker = "s"
     static let swiftFileExtension = "swift"
+    static let hunspellAffixFileExtension = "aff"
     static let regexSymbols = "[.^$*+?()\\[\\]{}|\\\\]"
     static let letSwiftKeyword = "let"
     static let varSwiftKeyword = "var"
@@ -144,6 +146,12 @@ public class Constants {
             return "Done checking and correcting! Found \(misspelledWordsNumber) misspelled words. Corrected \(correctedWordsNumber) Words. Processing took \(elapsedTime) seconds."
         }
     }
+    
+    static let negativeContraction = "n't"
+    static let validVerbs = ["are", "is", "was", "were", "have", "has", "had", "do", "does", "did", "can", "could", "shall", "should", "will", "would", "may", "might", "must"]
+    static let pronounContractions = ["'m", "'re", "'s", "'ve", "'ll", "'d"]
+    static let validPronouns = ["i", "you", "he", "she", "it", "we", "they"]
+    static let specificContractions = ["ain't", "y'all", "o'clock"]
 
     static let swiftKeywords = [
         "associatedtype", "deinit", "fileprivate", "rethrows", "typealias", "fallthrough",
@@ -165,7 +173,7 @@ public class Constants {
         "gen", "bg", "buf", "faq", "arch", "archs",
         "expr", "ctx", "grp", "addr", "dst", "proj",
         "enc", "env", "envs", "attrib", "subdir", "iter",
-        "inf", "nb", "nbr"
+        "inf", "nb", "nbr", "ptr", "dic", "dict", "config"
     ]
 
     static let commonlyUsedWords = [
@@ -176,6 +184,7 @@ public class Constants {
         "ipv6", "yyyy", "ss", "md", "js", "cer", "ttf", "otf",
         "ws", "wss", "iphoneos", "utf", "utf8", "utf16",
         "ios", "dylib", "swiftlang", "xcodeproj", "xcworkspace", "swiftgen",
+        "swiftlint", "swiftformat", "swiftyspell",
         "rswift", "xcconfig", "sourcery", "xlinker", "xcframework", "iboutlet",
         "ibinspectable", "ibdesignable", "xcframeworks", "sdk", "protobuf", "alamofire",
         "grpc", "momd", "moya", "utc", "crlf", "deinitialized",
@@ -190,7 +199,7 @@ public class Constants {
         "rethrow", "sha512", "bcrypt", "rx", "reactivex", "xcrun",
         "lipo", "xcscheme", "xcarchive", "armv7", "simctl", "otool",
         "iphonesimulator", "appletvos", "interactor", "jwt", "csrf", "iot",
-        "crashlytics", "qr", "mqtt", "hunspell"
+        "crashlytics", "qr", "mqtt", "hunspell", "uikit", "otp"
     ]
 
     static let loremIpsumWords = [

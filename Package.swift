@@ -16,12 +16,21 @@ let package = Package(
         .package(url: "https://github.com/kylef/Commander.git", exact: "0.9.1")
     ],
     targets: [
+        .systemLibrary(
+            name: "CHunspell",
+            pkgConfig: "hunspell",
+            providers: [
+                .brew(["hunspell"])
+            ]
+        ),
         .target(
             name: "SwiftySpellCore",
             dependencies: [
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftParser", package: "swift-syntax"),
-                "Yams"
+                .product(name: "SwiftParserDiagnostics", package: "swift-syntax"),
+                "Yams",
+                "CHunspell"
             ]),
         .executableTarget(
             name: "SwiftySpellCLI",
@@ -32,4 +41,5 @@ let package = Package(
         .testTarget(
             name: "SwiftySpellTests",
             dependencies: ["SwiftySpellCLI", "SwiftySpellCore"])
-    ])
+    ]
+)

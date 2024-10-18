@@ -99,6 +99,29 @@ final class SwiftySpellTests: XCTestCase {
         }
         waitForExpectations(timeout: 2, handler: nil)
     }
+    
+    func testCheckSpellingForStrings() {
+        let expectation = expectation(description: "Test SwiftySpellCore")
+
+        let testFilePath = "\(testDirectoryPath)/TestFile.swift"
+        let swiftCode = SwiftCodesForTests.forStrings()
+        let testFileContent = swiftCode.code
+        try? testFileContent.write(toFile: testFilePath, atomically: true, encoding: .utf8)
+
+        DispatchQueue.global().async {
+            let semaphore = DispatchSemaphore(value: 0)
+            self.swiftySpell.check(self.testDirectoryPath, withFix: false, isRunningFromCLI: false, completion: {
+                semaphore.signal()
+            })
+            semaphore.wait()
+
+            let array = self.swiftySpell.allMisspelledWords.sorted()
+            XCTAssertEqual(array, swiftCode.misspelledWords.sorted())
+
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 400, handler: nil)
+    }
 
     func testCheckSpellingForEnumCases() {
         let expectation = expectation(description: "Test SwiftySpellCore")

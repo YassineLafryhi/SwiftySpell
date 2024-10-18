@@ -112,4 +112,57 @@ internal class WordChecker {
         }
         return corrections
     }
+    
+    func checkAndSuggestCorrectionsWithHunspell(text: String, languages: Set<String>) -> [String: [String]] {
+        var corrections: [String: [String]] = [:]
+
+        let languageCode = languages.first! == "en" ? "en_US" : languages.first!
+        let checkResult = checkWord(text, languageCode: languageCode)
+        
+        if checkResult.0 {
+            let misspelledWord = text
+            if ignoredWords.contains(misspelledWord) || shouldIgnoreWord(word: misspelledWord) {
+                
+            } else {
+                corrections[misspelledWord] = checkResult.1
+            }
+        }
+
+        return corrections
+    }
+    
+    private func checkWord(_ word: String, languageCode: String) -> (Bool, [String]) {
+        var isMisspelled = false
+        var suggestions: [String] = []
+        
+        if let (affixURL, dictionaryURL) = generateLanguageFilePaths(languageCode: languageCode) {
+            if let hunspell = Hunspell(affixFilePath: affixURL.path(), dictionaryFilePath: dictionaryURL.path()) {
+                let isCorrect = hunspell.spell(word)
+                if !isCorrect {
+                    let theSuggestions = hunspell.suggest(word)
+                    isMisspelled = true
+                    suggestions = theSuggestions
+                }
+            } else {
+                print("Failed to initialize Hunspell")
+            }
+        }
+        
+        return (isMisspelled, suggestions)
+    }
+    
+    private func generateLanguageFilePaths(languageCode: String) -> (affixURL: URL, dictionaryURL: URL)? {
+        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser.path
+        
+        let baseDirectory = "\(homeDirectory)/Library/Spelling"
+        let affixPath = "\(baseDirectory)/\(languageCode).\(Constants.hunspellAffixFileExtension)"
+        let dictionaryPath = "\(baseDirectory)/\(languageCode).dic"
+        
+        guard let affixURL = URL(string: affixPath),
+              let dictionaryURL = URL(string: dictionaryPath) else {
+            return nil
+        }
+        
+        return (affixURL, dictionaryURL)
+    }
 }

@@ -28,6 +28,10 @@ extension String {
     func trimLastNumbers() -> String {
         replacingOccurrences(of: "\\d+$", with: String(), options: .regularExpression)
     }
+    
+    func endsWith(_ suffix: String) -> Bool {
+           return self.hasSuffix(suffix)
+       }
 }
 
 extension SyntaxProtocol {
