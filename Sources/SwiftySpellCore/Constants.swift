@@ -11,7 +11,7 @@ public class Constants {
     public static let name = "SwiftySpell"
     public static let currentVersion = "0.9.7"
     public static let configFileName = ".swiftyspell.yml"
-    public static let releasesURL = "https://api.github.com/repos/YassineLafryhi/SwiftySpell/releases/latest"
+    public static let latestReleaseURL = "https://api.github.com/repos/YassineLafryhi/SwiftySpell/releases/latest"
 
     static let defaultLanguage = "en"
     static let languageCodeOfBritishEnglish = "en_GB"
@@ -64,8 +64,12 @@ public class Constants {
     static let possessiveApostrophe = "'"
     static let possessiveMarker = "s"
     static let swiftFileExtension = "swift"
+
+    #if os(Linux)
     static let hunspellAffixFileExtension = "aff"
     static let hunspellDictionaryFileExtension = "dic"
+    #endif
+
     static let regexSymbols = "[.^$*+?()\\[\\]{}|\\\\]"
     static let letSwiftKeyword = "let"
     static let varSwiftKeyword = "var"
@@ -147,15 +151,35 @@ public class Constants {
             return "Done checking and correcting! Found \(misspelledWordsNumber) misspelled words. Corrected \(correctedWordsNumber) Words. Processing took \(elapsedTime) seconds."
         }
     }
-    
+
     static let negativeContraction = "n't"
-    static let validVerbs = ["are", "is", "was", "were", "have", "has", "had", "do", "does", "did", "can", "could", "shall", "should", "will", "would", "may", "might", "must"]
+    static let validVerbs = [
+        "are",
+        "is",
+        "was",
+        "were",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "can",
+        "could",
+        "shall",
+        "should",
+        "will",
+        "would",
+        "may",
+        "might",
+        "must"
+    ]
     static let pronounContractions = ["'m", "'re", "'s", "'ve", "'ll", "'d"]
     static let validPronouns = ["i", "you", "he", "she", "it", "we", "they"]
     static let specificContractions = ["ain't", "y'all", "o'clock"]
 
     static let swiftKeywords = [
-        "associatedtype", "deinit", "fileprivate", "rethrows", "typealias", "fallthrough",
+        "func", "associatedtype", "deinit", "fileprivate", "rethrows", "typealias", "fallthrough",
         "nonmutating"
     ]
 

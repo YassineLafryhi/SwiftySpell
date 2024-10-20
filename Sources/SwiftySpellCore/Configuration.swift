@@ -54,7 +54,7 @@ public class Configuration {
             let result = prepareConfiguration()
             print(Constants.getMessage(result))
         } catch {
-                print(Constants.getMessage(.configLoadingError(error.localizedDescription)))
+            print(Constants.getMessage(.configLoadingError(error.localizedDescription)))
         }
     }
 
@@ -189,11 +189,5 @@ public class Configuration {
         case ignoreLoremIpsum = "ignore_lorem_ipsum"
         case ignoreHtmlTags = "ignore_html_tags"
         case ignoreUrls = "ignore_urls"
-
-        // TODO: Add support for these rules
-        // case pluralConsistency = "plural_consistency"
-        // case homophoneCheck = "homophone_check"
-
-        // TODO: Integrate LanguageTool
     }
 }

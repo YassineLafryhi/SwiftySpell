@@ -1,9 +1,27 @@
 #!/bin/sh
 
-output=$(swiftyspell check .)
-count=$(echo "$output" | grep -c "may be misspelled")
+if [[ "$(uname -m)" == arm64 ]]
+then
+    export PATH="/opt/homebrew/bin:$PATH"
+fi
 
-if [ $count -gt 0 ]; then
+# Format Code With SwiftFormat
+swiftformat . --cache ignore
+
+# Lint Code With SwiftLint
+swiftlint_output=$(swiftlint --fix && swiftlint)
+swiftlint_count=$(echo "$swiftlint_output" | grep -c "warning:")
+
+if [ $swiftlint_count -gt 0 ]; then
+  echo "SwiftLint warnings found. Please fix them before committing."
+  exit 1
+fi
+
+# Check Spelling With SwiftySpell
+swiftyspell_output=$(swiftyspell check .)
+swiftyspell_count=$(echo "$swiftyspell_output" | grep -c "may be misspelled")
+
+if [ $swiftyspell_count -gt 0 ]; then
   echo "Spelling errors found. Please fix them before committing (You can run 'swiftyspell fix .' to fix most of them)."
   exit 1
 fi

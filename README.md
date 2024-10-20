@@ -6,8 +6,8 @@
 ![](https://img.shields.io/badge/Tuist-4.22.0-blue)
 ![](https://img.shields.io/badge/SwiftSyntax-600.0.1-purple)
 ![](https://img.shields.io/badge/Yams-5.1.3-red)
-![](https://img.shields.io/badge/Commander-0.9.1-green)
-![](https://img.shields.io/badge/Xcode-15.2-blue)
+![](https://img.shields.io/badge/SwiftArgumentParser-1.5.0-green)
+![](https://img.shields.io/badge/Xcode-16-blue)
 
 ## Installation
 ### Using CocoaPods
@@ -151,6 +151,20 @@ chmod +x build.sh && chmod +x install.sh
 ./build.sh
 ./install.sh
 ```
+
+## TODOs
+
+[] Check spelling mistakes in Swift file names also
+[] Complete the implementation of Update command
+[] Implement swiftyspell:enable/swiftyspell:disable
+[] Integrate LanguageTool (pluralConsistency, homophoneCheck, ...)
+[] Add the possibility to take a Swift code as a String parameter and check it
+[] Use SyntaxRewriter while fixing the spelling mistakes
+[] Complete integrating Hunspell for spell checking on Linux
+[] Improve the implementation of ignore_capitalization rule (using the suggestions array is not always sufficient)
+[] Improve the implementation of support_flat_case rule (using the suggestions array is not always sufficient)
+[] If the misspelledWord starts with a word from the ignore list, remove it then recheck spelling of the resulting word
+[] Add more Unit Tests
 
 ## Contributing
 

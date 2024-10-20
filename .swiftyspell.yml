@@ -5,11 +5,11 @@ languages:
 
 # Directories/Files/Regular expressions to exclude
 exclude:
-  - Tests
   - Build
   - Constants.swift
   - Utilities.swift
   - SwiftCodesForTests.swift
+  - WordCheckerTests.swift
   - Package.swift
   - Project.swift
 
@@ -34,3 +34,4 @@ ignore:
   #- \bhttps?:\/\/[^\s]+\b
   #- ^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){2,}$
   - swifty
+  - swiftyspell

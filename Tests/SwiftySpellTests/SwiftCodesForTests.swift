@@ -8,10 +8,12 @@
 internal class SwiftCodesForTests {
     let code: String
     let misspelledWords: [String]
+    var correctedWords: [String] = []
 
-    public init(code: String, misspelledWords: [String]) {
+    public init(code: String, misspelledWords: [String], correctedWords: [String] = []) {
         self.code = code
         self.misspelledWords = misspelledWords
+        self.correctedWords = correctedWords
     }
 
     public static func forVariables() -> SwiftCodesForTests {
@@ -19,9 +21,9 @@ internal class SwiftCodesForTests {
             var occurenceCount = 0
             """
         let misspelledWords = ["occurence"]
-        return .init(code: code, misspelledWords: misspelledWords)
+        return .init(code: code, misspelledWords: misspelledWords, correctedWords: ["occurrence"])
     }
-    
+
     public static func forStrings() -> SwiftCodesForTests {
         let code = """
             var firstString = "This is a misppeled text"
@@ -30,9 +32,9 @@ internal class SwiftCodesForTests {
             firstString = "This] [book] is/ {very} //good"
             let nsError = error as NSError
             fatalError("Unresolved error \\(nsError), \\(nsError.userInfo)")
-            
+
             Logger.shared.log("Web Server started at \\(webServer.serverURL ?? URL(string: "http://localhost:8080")!)")
-            
+
             var secondString = \"""
                 This is alsoo a text that contains some mistaks
             \"""
@@ -55,7 +57,7 @@ internal class SwiftCodesForTests {
                     }
                 }
             }
-            
+
             enum Status: String {
                 case active = "Actve"
                 case inactive = "Inctive"
@@ -86,7 +88,7 @@ internal class SwiftCodesForTests {
              * This is an exmaple of a multiline comment with some speling mistakes,
              * in diferent lines, that are also dettected.
              */
-            
+
             /// This fumction addds two nubres
             /// - Parameters:
             ///   - a: The frst numbber to add
@@ -239,7 +241,7 @@ internal class SwiftCodesForTests {
                     lhs.age < rhs.age
                 }
             }
-            
+
             let response = "Not Found"
             switch response {
             case "OK":
@@ -249,25 +251,25 @@ internal class SwiftCodesForTests {
             default:
                 print("Unknown status")
             }
-            
+
             let json = "{\"keyy\": \"vallue\"}" // Example JSON
-            
+
             let message = \"""
             The output recieved from the server is not correct.
             Please recheck the endpint and try again.
             \"""
-            
+
             @available(iOS 14.0, *)
             func someMethod() {
                 #warning("This is not optiimal for performncee")
             }
-            
+
             let message = "An error has occured\nPlease check the input. \tThen retry"
-            
+
             Text("Welcomme to the app, \\(userNname)!")
                 .font(.title)
                 .foregroundColor(.red)
-            
+
             let query = QueryBuilder().where("userr_name", isEqualTo: "John").limit(10).excecute()
 
 
@@ -279,10 +281,10 @@ internal class SwiftCodesForTests {
 
                 print("The agee is \\(validdAge)")
             }
-            
+
             func registerUser(username: String?, password: String?, email: String?) {
-                guard let valiUsername = username, 
-                      let valdPassword = password, 
+                guard let valiUsername = username,
+                      let valdPassword = password,
                       let vaiddEmail = email else {
                     print("All fields must be filled out correctly.")
                     return
@@ -291,8 +293,8 @@ internal class SwiftCodesForTests {
                 // Proceed with user registration
                 print("Registering user with username: \\(validUsername), email: \\(validEmail)")
             }
-            
-            
+
+
             """
         let misspelledWords = ["imdex", "Tenplate", "definate"]
         return .init(code: code, misspelledWords: misspelledWords)

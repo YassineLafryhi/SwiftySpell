@@ -33,7 +33,7 @@ let project = Project(
     packages: [
         .package(url: "https://github.com/apple/swift-syntax.git", .exact("600.0.1")),
         .package(url: "https://github.com/jpsim/Yams.git", .exact("5.1.3")),
-        .package(url: "https://github.com/kylef/Commander.git", .exact("0.9.1"))
+        .package(url: "https://github.com/apple/swift-argument-parser.git", .exact("1.5.0"))
     ],
     settings: .settings(
         base: [
@@ -56,7 +56,7 @@ let project = Project(
             ],
             dependencies: [
                 .target(name: "\(name)Core"),
-                .package(product: "Commander")
+                .package(product: "ArgumentParser")
             ]),
         .target(
             name: "\(name)Core",
@@ -74,6 +74,7 @@ let project = Project(
             dependencies: [
                 .package(product: "SwiftSyntax"),
                 .package(product: "SwiftParser"),
+                .package(product: "SwiftParserDiagnostics"),
                 .package(product: "Yams")
             ]),
         .target(

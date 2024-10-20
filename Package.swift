@@ -13,7 +13,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax.git", exact: "600.0.1"),
         .package(url: "https://github.com/jpsim/Yams.git", exact: "5.1.3"),
-        .package(url: "https://github.com/kylef/Commander.git", exact: "0.9.1")
+        .package(url: "https://github.com/apple/swift-argument-parser.git", exact: "1.5.0")
     ],
     targets: [
         .systemLibrary(
@@ -21,8 +21,7 @@ let package = Package(
             pkgConfig: "hunspell",
             providers: [
                 .brew(["hunspell"])
-            ]
-        ),
+            ]),
         .target(
             name: "SwiftySpellCore",
             dependencies: [
@@ -36,10 +35,9 @@ let package = Package(
             name: "SwiftySpellCLI",
             dependencies: [
                 "SwiftySpellCore",
-                "Commander"
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]),
         .testTarget(
             name: "SwiftySpellTests",
             dependencies: ["SwiftySpellCLI", "SwiftySpellCore"])
-    ]
-)
+    ])

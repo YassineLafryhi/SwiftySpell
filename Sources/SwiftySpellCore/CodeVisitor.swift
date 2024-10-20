@@ -39,6 +39,7 @@ internal class CodeVisitor: SyntaxVisitor {
     var oneLineComments: [(String, Int)] = []
     var multiLineComments: [[(String, Int)]] = []
 
+    var authorName: [String] = []
     var isAuthorNameAddedToIgnoreList = false
 
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
@@ -259,7 +260,7 @@ internal class CodeVisitor: SyntaxVisitor {
                         if !isAuthorNameAddedToIgnoreList {
                             for element in authorfullName.trim()
                                 .components(separatedBy: Constants.spaceCharacter) {
-                                // TODO: Add author first/last name to ignore list
+                                authorName.append(element)
                             }
                             isAuthorNameAddedToIgnoreList = true
                         }

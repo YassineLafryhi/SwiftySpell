@@ -10,13 +10,8 @@ import SwiftSyntax
 import XCTest
 @testable import SwiftySpellCore
 
-final class CodeVisitorTests: XCTestCase {
-    var visitor: CodeVisitor!
-
-    override func setUp() {
-        super.setUp()
-        visitor = CodeVisitor(viewMode: .all)
-    }
+internal class CodeVisitorTests: XCTestCase {
+    var visitor = CodeVisitor(viewMode: .all)
 
     func testVisitProtocol() {
         let source = "protocol TestProtocol {}"
@@ -241,7 +236,7 @@ final class CodeVisitorTests: XCTestCase {
             // Created by User on 1/1/2024
             // Copyright © 2024 Company. All rights reserved.
             """
-        try! fileContent.write(toFile: filePath, atomically: true, encoding: .utf8)
+        try? fileContent.write(toFile: filePath, atomically: true, encoding: .utf8)
 
         visitor.extractOneLineComments(from: filePath)
 
@@ -266,7 +261,8 @@ final class CodeVisitorTests: XCTestCase {
             It contains 3 lines.
             And it starts directly the comment after the marker */
             """
-        try! fileContent.write(toFile: filePath, atomically: true, encoding: .utf8)
+
+        try? fileContent.write(toFile: filePath, atomically: true, encoding: .utf8)
 
         visitor.extractMultiLineComments(from: filePath)
 

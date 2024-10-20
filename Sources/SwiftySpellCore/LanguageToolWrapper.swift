@@ -26,9 +26,10 @@ internal class LanguageToolWrapper {
             try process.run()
 
             let inputHandle = inputPipe.fileHandleForWriting
-            inputHandle.write(text.data(using: .utf8)!)
-            inputHandle.closeFile()
-
+            if let data = text.data(using: .utf8) {
+                inputHandle.write(data)
+                inputHandle.closeFile()
+            }
             let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
             let output = String(data: outputData, encoding: .utf8) ?? "Error: Could not read output"
 

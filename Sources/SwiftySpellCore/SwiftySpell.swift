@@ -8,32 +8,33 @@
 import AppKit
 import Foundation
 import SwiftParser
-import SwiftSyntax
 import SwiftParserDiagnostics
+import SwiftSyntax
 
 public class SwiftySpell {
-    let fileManager = FileManager.default
+    private let fileManager = FileManager.default
+    private var checker: WordChecker?
+    private var withFix = false
+    public var allMisspelledWords: [String] = []
     public var config: Configuration?
-    var checker: WordChecker?
-    var withFix = false
     public var misspelledWordsNumber = 0
     public var correctedWordsNumber = 0
-    var allMisspelledWords: [String] = []
+
     public typealias CompletionHandler = () -> Void
+
     private var completionHandler: CompletionHandler?
 
-    public init() {
-    }
-    
+    public init() {}
+
     public func setConfig(configFilePath: String? = nil) {
         if let configFilePath = configFilePath {
-            self.config = Configuration(configFilePath: configFilePath)
+            config = Configuration(configFilePath: configFilePath)
         } else {
-            self.config = Configuration()
+            config = Configuration()
         }
-        
-        if let config = self.config {
-            self.checker = WordChecker(
+
+        if let config = config {
+            checker = WordChecker(
                 ignoredWords: config.ignore,
                 ignoredPatternsOfWords: config.ignoredPatternsOfWords,
                 ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
@@ -70,7 +71,7 @@ public class SwiftySpell {
         completion: @escaping CompletionHandler) {
         self.withFix = withFix
         completionHandler = completion
-        // TODO: Add the possibility to take also a whole Swift code as a String parameter and check it
+
         do {
             var swiftFiles: [URL] = []
             let pathType = getPathType(path: directoryOrSwiftFilePath)
@@ -100,11 +101,11 @@ public class SwiftySpell {
                     defer { group.leave() }
 
                     do {
-                        // print("Checking '\(file.lastPathComponent)' (\(swiftFilesCounter)/\(swiftFilesNumber)")
+                        print("Checking '\(file.lastPathComponent)' (\(swiftFilesCounter)/\(swiftFilesNumber)")
                         try self.processFile(file)
                         swiftFilesCounter += 1
                     } catch {
-                        // Utilities.printError(Constants.getMessage(.genericError(error.localizedDescription)))
+                        print(Constants.getMessage(.genericError(error.localizedDescription)))
                     }
                 }
             }
@@ -115,7 +116,7 @@ public class SwiftySpell {
                 dispatchMain()
             }
         } catch {
-            // Utilities.printError(Constants.getMessage(.genericError(error.localizedDescription)))
+            print(Constants.getMessage(.genericError(error.localizedDescription)))
         }
     }
 
@@ -235,12 +236,11 @@ public class SwiftySpell {
     }
 
     private func shouldExclude(file: URL) -> Bool {
-        guard let config = self.config else {
+        guard let config = config else {
             return false
         }
-        
-        for pattern in config.ignoredPatternsOfFilesOrDirectories
-            where file.lastPathComponent.range(of: pattern, options: .regularExpression) != nil {
+
+        for pattern in config.ignoredPatternsOfFilesOrDirectories where file.path().matches(pattern) {
             return true
         }
 
@@ -252,16 +252,16 @@ public class SwiftySpell {
     }
 
     private func shouldExclude(directory: URL) -> Bool {
-        guard let config = self.config else {
+        guard let config = config else {
             return false
         }
-        
+
         let directoryPath = directory.path
-        
+
         if config.excludedDirectories.contains(where: { directoryPath.hasSuffix($0) }) {
             return true
         }
-        
+
         for pattern in config.ignoredPatternsOfFilesOrDirectories {
             if let regex = try? NSRegularExpression(pattern: pattern, options: []) {
                 let range = NSRange(location: 0, length: directoryPath.utf16.count)
@@ -270,7 +270,7 @@ public class SwiftySpell {
                 }
             }
         }
-        
+
         return false
     }
 
@@ -279,9 +279,18 @@ public class SwiftySpell {
         let sourceFile = Parser.parse(source: source)
         let visitor = CodeVisitor(viewMode: .all)
         visitor.walk(sourceFile)
-        // TODO: Add comment rule check here
-        visitor.extractOneLineComments(from: url.path)
-        visitor.extractMultiLineComments(from: url.path)
+
+        if let config = config, config.rules.contains(.supportOneLineComment) {
+            visitor.extractOneLineComments(from: url.path)
+        }
+
+        if let config = config, config.rules.contains(.supportMultiLineComment) {
+            visitor.extractMultiLineComments(from: url.path)
+        }
+
+        for item in visitor.authorName {
+            checker?.ignoredWords.insert(item)
+        }
 
         let sourceLocationConverter = SourceLocationConverter(fileName: url.path, tree: sourceFile)
         checkSpelling(
@@ -290,11 +299,9 @@ public class SwiftySpell {
             sourceLocationConverter: sourceLocationConverter)
     }
 
-    // TODO: Improve this to use SyntaxRewriter
     private func renameInFile(misspelledWord: String, correctWord: String, filePath: String) -> Bool {
         do {
             var fileContents = try String(contentsOfFile: filePath, encoding: .utf8)
-            // TODO: Improve this to replace exactly in line number on the misspelledWord column
             fileContents = fileContents.replace(misspelledWord, correctWord)
             try fileContents.write(toFile: filePath, atomically: true, encoding: .utf8)
             return true
@@ -307,9 +314,6 @@ public class SwiftySpell {
         in visitor: CodeVisitor,
         filePath: String,
         sourceLocationConverter: SourceLocationConverter) {
-        // TODO: Check Swift file name also
-
-        // TODO: Maybe this is no longer needed
         /* for (identifier, position, kind) in visitor.globalOrConstantVariables {
              if kind == Constants.letSwiftKeyword || kind == Constants.varSwiftKeyword {
                  processSpelling(
@@ -519,29 +523,29 @@ public class SwiftySpell {
                 sourceLocationConverter: sourceLocationConverter)
         }
 
-            if let config = self.config {
-                if config.rules.contains(.supportOneLineComment) {
-                    for (comment, line) in visitor.oneLineComments {
+        if let config = config {
+            if config.rules.contains(.supportOneLineComment) {
+                for (comment, line) in visitor.oneLineComments {
+                    processSpelling(
+                        for: comment,
+                        startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
+                        filePath: filePath,
+                        sourceLocationConverter: sourceLocationConverter)
+                }
+            }
+
+            if config.rules.contains(.supportMultiLineComment) {
+                for multiLineComment in visitor.multiLineComments {
+                    for (commentLine, line) in multiLineComment {
                         processSpelling(
-                            for: comment,
+                            for: commentLine,
                             startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
                             filePath: filePath,
                             sourceLocationConverter: sourceLocationConverter)
                     }
                 }
-                
-                if config.rules.contains(.supportMultiLineComment) {
-                    for multiLineComment in visitor.multiLineComments {
-                        for (commentLine, line) in multiLineComment {
-                            processSpelling(
-                                for: commentLine,
-                                startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
-                                filePath: filePath,
-                                sourceLocationConverter: sourceLocationConverter)
-                        }
-                    }
-                }
             }
+        }
     }
 
     private func splitCamelCaseString(_ input: String) -> [String] {
@@ -586,9 +590,17 @@ public class SwiftySpell {
     }
 
     private func isValidURL(_ urlString: String) -> Bool {
-        // TODO: Use a Regular Expression to check valid URL
+        let pattern = "^(https?|ftp)://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/[a-zA-Z0-9#?&=_-]*)?$"
+
         let urlString = urlString.remove(Constants.quoteCharacter)
-        return urlString.starts(with: "http://") || urlString.starts(with: "https://")
+        let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
+        let range = NSRange(location: 0, length: urlString.utf16.count)
+
+        if let match = regex?.firstMatch(in: urlString, options: [], range: range) {
+            return match.range.location != NSNotFound
+        }
+
+        return false
     }
 
     private func processSpelling(
@@ -612,11 +624,11 @@ public class SwiftySpell {
 
         var string = string.trimmingCharacters(in: .whitespaces)
 
-            if let config = self.config {
-                if config.rules.contains(.ignoreUrls), isValidURL(string) {
-                    return
-                }
+        if let config = config {
+            if config.rules.contains(.ignoreUrls), isValidURL(string) {
+                return
             }
+        }
         string = cleanString(string)
 
         if string.contains(Constants.spaceCharacter) {
@@ -659,16 +671,18 @@ public class SwiftySpell {
             word = word.remove("\(Constants.possessiveApostrophe)\(Constants.possessiveMarker)")
             word = word.remove(Constants.possessiveApostrophe)
             word = word.remove(Constants.quoteCharacter)
-            
-            if word.isEmpty { return }
-            
-            guard let config = self.config,
-            let checker = self.checker else {
+
+            if word.isEmpty {
+                return
+            }
+
+            guard
+                let config = config,
+                let checker = checker else {
                 return
             }
 
             var isMisspelledWordCorrected = false
-            // TODO: Complete integrating checkAndSuggestCorrectionsWithHunspell
             let corrections = checker.checkAndSuggestCorrections(
                 word: word, languages: config.languages)
             if !corrections.isEmpty {
@@ -685,7 +699,6 @@ public class SwiftySpell {
                         allMisspelledWords.append(misspelledWord)
                         misspelledWordsNumber += 1
                     } else {
-                        // TODO: For these rules, using the suggestions array is not always sufficient
                         let isIgnoreCapitalizationRuleEnabled = config.rules.contains(
                             .ignoreCapitalization)
                         let isSupportFlatCaseRuleEnabled = config.rules.contains(.supportFlatCase)
@@ -694,19 +707,15 @@ public class SwiftySpell {
                         var areWordsInFlatCaseFullyCorrect = false
 
                         if isSupportFlatCaseRuleEnabled {
-                            for suggestion in suggestions {
-                                if misspelledWord == joinWords(suggestion) {
-                                    areWordsInFlatCaseFullyCorrect = true
-                                }
-
-                                // TODO: If the misspelledWord starts with a word from the ignore list, remove it then recheck spelling of the resulting word
+                            for suggestion in suggestions where misspelledWord == joinWords(suggestion) {
+                                areWordsInFlatCaseFullyCorrect = true
+                                break
                             }
                         }
 
-                        for suggestion in suggestions {
-                            if misspelledWord == suggestion.lowercased() {
-                                shouldCapitalizeWord = true
-                            }
+                        for suggestion in suggestions where misspelledWord == suggestion.lowercased() {
+                            shouldCapitalizeWord = true
+                            break
                         }
 
                         if shouldCapitalizeWord && isIgnoreCapitalizationRuleEnabled {
@@ -741,23 +750,18 @@ public class SwiftySpell {
             }
         }
     }
-    
-    // TOOO: To be made private
-    public func isValidSwiftCode(_ code: String) -> Bool {
-        do {
-            let sourceFile = Parser.parse(source: code)
-            let diagnostics = ParseDiagnosticsGenerator.diagnostics(for: sourceFile)
-            return diagnostics.isEmpty
-        } catch {
-            return false
-        }
+
+    private func isValidSwiftCode(_ code: String) -> Bool {
+        let sourceFile = Parser.parse(source: code)
+        let diagnostics = ParseDiagnosticsGenerator.diagnostics(for: sourceFile)
+        return diagnostics.isEmpty
     }
-    
+
     private func isEnglishContraction(_ word: String) -> Bool {
         guard word.contains("'") else {
             return false
         }
-        
+
         let lowercasedWord = word.lowercased()
 
         if Constants.specificContractions.contains(lowercasedWord) {
@@ -765,10 +769,8 @@ public class SwiftySpell {
         }
 
         for pronoun in Constants.validPronouns {
-            for contraction in Constants.pronounContractions {
-                if lowercasedWord == pronoun + contraction {
-                    return true
-                }
+            for contraction in Constants.pronounContractions where lowercasedWord == pronoun + contraction {
+                return true
             }
         }
 
@@ -791,9 +793,7 @@ public class SwiftySpell {
                 lineContent.range(of: identifier)?.lowerBound.utf16Offset(in: lineContent) ?? 0
             return index + 1
         } catch {
-            // TODO: Fix this
-            // Utilities.printError(
-            // Constants.getMessage(.failedToReadFile(error.localizedDescription)))
+            print(Constants.getMessage(.failedToReadFile(error.localizedDescription)))
         }
         return 1
     }

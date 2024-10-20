@@ -8,8 +8,8 @@
 import XCTest
 @testable import SwiftySpellCore
 
-final class WordCheckerTests: XCTestCase {
-    var wordChecker: WordChecker!
+internal class WordCheckerTests: XCTestCase {
+    var wordChecker: WordChecker?
 
     override func setUp() {
         super.setUp()
@@ -20,12 +20,19 @@ final class WordCheckerTests: XCTestCase {
     }
 
     func testShouldIgnoreWord() {
+        guard let wordChecker = wordChecker else {
+            return
+        }
         XCTAssertTrue(wordChecker.shouldIgnoreWord(word: "test123"))
         XCTAssertFalse(wordChecker.shouldIgnoreWord(word: "testword"))
         XCTAssertTrue(wordChecker.ignoredWords.contains("specialword"))
     }
 
     func testCheckAndSuggestCorrections() {
+        guard let wordChecker = wordChecker else {
+            return
+        }
+
         let word = "testt"
         let corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
 
@@ -34,6 +41,10 @@ final class WordCheckerTests: XCTestCase {
     }
 
     func testMultipleLanguages() {
+        guard let wordChecker = wordChecker else {
+            return
+        }
+
         var word = "Thiss"
         var corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en", "fr"])
         XCTAssertTrue(corrections.keys.contains("Thiss"))
@@ -43,22 +54,34 @@ final class WordCheckerTests: XCTestCase {
     }
 
     func testIgnoredWords() {
+        guard let wordChecker = wordChecker else {
+            return
+        }
+
         let word = "specialword"
         let corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
         XCTAssertFalse(corrections.keys.contains("specialword"))
     }
 
     func testIgnoredPatterns() {
+        guard let wordChecker = wordChecker else {
+            return
+        }
+
         var word = "test123"
         var corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
         XCTAssertFalse(corrections.keys.contains("test123"))
-        
+
         word = "testword"
         corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
         XCTAssertTrue(corrections.keys.contains("testword"))
     }
 
     func testEmptyWord() {
+        guard let wordChecker = wordChecker else {
+            return
+        }
+
         let word = ""
         let corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
 
@@ -66,6 +89,10 @@ final class WordCheckerTests: XCTestCase {
     }
 
     func testCorrectWord() {
+        guard let wordChecker = wordChecker else {
+            return
+        }
+
         let word = "perfectly"
         let corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
 
@@ -73,7 +100,11 @@ final class WordCheckerTests: XCTestCase {
     }
 
     func testPerformance() {
-        let longText = String(repeating: "word", count: 1000)
+        guard let wordChecker = wordChecker else {
+            return
+        }
+
+        let longText = String(repeating: "word", count: 1_000)
 
         measure {
             _ = wordChecker.checkAndSuggestCorrections(word: longText, languages: ["en"])

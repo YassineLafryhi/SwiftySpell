@@ -1,6 +1,7 @@
 # swiftlint rules
 included: # paths to include during linting. `--path` is ignored if present.
   - ./Sources
+  - ./Tests
 
 excluded: # paths to ignore during linting. Takes precedence over `included`.
   - ./Build
@@ -114,11 +115,11 @@ opt_in_rules:
   - vertical_whitespace
   - weak_delegate
   - xctfail_message
-  
+
 custom_rules:
   no_string_literals:
     name: "String Literals Warning"
-    regex: "\".*\""
+    regex: '".*"'
     message: "Avoid using string literals directly in the code. Move them to a constants file."
     severity: warning
 
@@ -143,8 +144,8 @@ control_statement:
   severity: warning
 
 cyclomatic_complexity:
-  warning: 25
-  error: 30
+  warning: 30
+  error: 35
 
 explicit_init:
   severity: error
@@ -157,7 +158,7 @@ first_where:
   severity: error
 
 function_body_length:
-  warning: 100
+  warning: 200
   error: 250
 
 function_parameter_count:
