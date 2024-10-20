@@ -127,6 +127,12 @@ if [ $count -gt 0 ]; then
 fi
 ```
 
+## Correcting Spelling Mistakes (WIP)
+To correct most of the spelling mistakes, run the following command:
+```shell
+swiftyspell fix .
+```
+
 ## How to build
 
 To build SwiftySpell from source, run the following commands:
@@ -154,17 +160,23 @@ chmod +x build.sh && chmod +x install.sh
 
 ## TODOs
 
-[] Check spelling mistakes in Swift file names also
-[] Complete the implementation of Update command
-[] Implement swiftyspell:enable/swiftyspell:disable
-[] Integrate LanguageTool (pluralConsistency, homophoneCheck, ...)
-[] Add the possibility to take a Swift code as a String parameter and check it
-[] Use SyntaxRewriter while fixing the spelling mistakes
-[] Complete integrating Hunspell for spell checking on Linux
-[] Improve the implementation of ignore_capitalization rule (using the suggestions array is not always sufficient)
-[] Improve the implementation of support_flat_case rule (using the suggestions array is not always sufficient)
-[] If the misspelledWord starts with a word from the ignore list, remove it then recheck spelling of the resulting word
-[] Add more Unit Tests
+- [ ] Check spelling mistakes in Swift file names also
+- [ ] Complete the implementation of Update command
+- [ ] Implement swiftyspell:enable/swiftyspell:disable
+- [ ] Integrate LanguageTool (pluralConsistency, homophoneCheck, ...)
+- [ ] Add the possibility to take a Swift code as a String parameter and check it
+- [ ] Use SyntaxRewriter while fixing the spelling mistakes
+- [ ] Complete integrating Hunspell for spell checking on Linux
+- [ ] Improve the implementation of ignore_capitalization rule (using the suggestions array is not always sufficient)
+- [ ] Improve the implementation of support_flat_case rule (using the suggestions array is not always sufficient)
+- [ ] If the misspelledWord starts with a word from the ignore list, remove it then recheck spelling of the resulting word
+- [ ] Run check/fix on a single file
+- [ ] Add reporter config (xcode (default), json, csv, ...)
+- [ ] Add Severity config (error/warning) for every rule
+- [ ] Enhance the Fix command to list suggestions and ask to choose one (If suggestions array contains more than 1 word)
+- [ ] Support Cache to avoid checking unmodified files
+- [ ] Warn about words that are in the yml config file but not found in the code
+- [ ] Add more Unit Tests
 
 ## Contributing
 
