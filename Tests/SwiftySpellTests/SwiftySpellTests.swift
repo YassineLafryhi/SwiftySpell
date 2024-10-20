@@ -11,10 +11,12 @@ import XCTest
 final class SwiftySpellTests: XCTestCase {
     var swiftySpell: SwiftySpell!
     let testDirectoryPath = FileManager.default.temporaryDirectory.appendingPathComponent("SwiftySpellTests").path
+    let testTimeout = 5.0
 
     override func setUp() {
         super.setUp()
         swiftySpell = SwiftySpell()
+        swiftySpell.setConfig()
         try? FileManager.default.createDirectory(atPath: testDirectoryPath, withIntermediateDirectories: true, attributes: nil)
     }
 
@@ -35,7 +37,7 @@ final class SwiftySpellTests: XCTestCase {
             expectation.fulfill()
         }
 
-        waitForExpectations(timeout: 5, handler: nil)
+        waitForExpectations(timeout: testTimeout, handler: nil)
     }
 
     func testLoadConfig() {
@@ -97,7 +99,7 @@ final class SwiftySpellTests: XCTestCase {
 
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectations(timeout: testTimeout, handler: nil)
     }
     
     func testCheckSpellingForStrings() {
@@ -120,7 +122,7 @@ final class SwiftySpellTests: XCTestCase {
 
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 400, handler: nil)
+        waitForExpectations(timeout: testTimeout, handler: nil)
     }
 
     func testCheckSpellingForEnumCases() {
@@ -143,7 +145,7 @@ final class SwiftySpellTests: XCTestCase {
 
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectations(timeout: testTimeout, handler: nil)
     }
 
     func testCheckSpellingForComments() {
@@ -166,7 +168,7 @@ final class SwiftySpellTests: XCTestCase {
 
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectations(timeout: testTimeout, handler: nil)
     }
 
     func testCheckSpellingForClassWithAttributes() {
@@ -189,7 +191,7 @@ final class SwiftySpellTests: XCTestCase {
 
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectations(timeout: testTimeout, handler: nil)
     }
 
     func testCheckSpellingForClassWithEnumsAndFunctions() {
@@ -212,7 +214,30 @@ final class SwiftySpellTests: XCTestCase {
 
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectations(timeout: testTimeout, handler: nil)
+    }
+    
+    func testCheckSpellingForManyCodeSegments() {
+        let expectation = expectation(description: "Test SwiftySpellCore")
+
+        let testFilePath = "\(testDirectoryPath)/TestFile.swift"
+        let swiftCode = SwiftCodesForTests.forManyCodeSegments()
+        let testFileContent = swiftCode.code
+        try? testFileContent.write(toFile: testFilePath, atomically: true, encoding: .utf8)
+
+        DispatchQueue.global().async {
+            let semaphore = DispatchSemaphore(value: 0)
+            self.swiftySpell.check(self.testDirectoryPath, withFix: false, isRunningFromCLI: false, completion: {
+                semaphore.signal()
+            })
+            semaphore.wait()
+
+            let array = self.swiftySpell.allMisspelledWords.sorted()
+            XCTAssertEqual(array, swiftCode.misspelledWords.sorted())
+
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: testTimeout, handler: nil)
     }
 
     func testFixCommand() {

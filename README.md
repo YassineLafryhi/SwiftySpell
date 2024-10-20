@@ -57,7 +57,7 @@ rules:
   - support_british_words
   - ignore_capitalization
   - ignore_swift_keywords
-  - ignore_other_words
+  - ignore_commonly_used_words
   - ignore_shortened_words
   - ignore_lorem_ipsum
   - ignore_html_tags

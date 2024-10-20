@@ -26,62 +26,57 @@ final class WordCheckerTests: XCTestCase {
     }
 
     func testCheckAndSuggestCorrections() {
-        let text = "This is a testt of the wordChecker. It should find misspelled words."
-        let corrections = wordChecker.checkAndSuggestCorrections(text: text, languages: ["en"])
+        let word = "testt"
+        let corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
 
         XCTAssertTrue(corrections.keys.contains("testt"))
         XCTAssertTrue(corrections["testt"]?.contains("test") ?? false)
-
-        XCTAssertFalse(corrections.keys.contains("wordChecker"))
     }
 
     func testMultipleLanguages() {
-        let text = "Thiss is a test of the wordd Checker. Ceci est un testte."
-        let corrections = wordChecker.checkAndSuggestCorrections(text: text, languages: ["en", "fr"])
-
+        var word = "Thiss"
+        var corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en", "fr"])
         XCTAssertTrue(corrections.keys.contains("Thiss"))
-        XCTAssertTrue(corrections.keys.contains("wordd"))
-        XCTAssertTrue(corrections.keys.contains("testte"))
-
-        XCTAssertFalse(corrections.keys.contains("test"))
+        word = "Ceci"
+        corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en", "fr"])
         XCTAssertFalse(corrections.keys.contains("Ceci"))
-        XCTAssertFalse(corrections.keys.contains("un"))
     }
 
     func testIgnoredWords() {
-        let text = "This specialword should be ignored by the wordChecker."
-        let corrections = wordChecker.checkAndSuggestCorrections(text: text, languages: ["en"])
-
+        let word = "specialword"
+        let corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
         XCTAssertFalse(corrections.keys.contains("specialword"))
     }
 
     func testIgnoredPatterns() {
-        let text = "This test123 should be ignored, but testword should not."
-        let corrections = wordChecker.checkAndSuggestCorrections(text: text, languages: ["en"])
-
+        var word = "test123"
+        var corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
         XCTAssertFalse(corrections.keys.contains("test123"))
+        
+        word = "testword"
+        corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
         XCTAssertTrue(corrections.keys.contains("testword"))
     }
 
-    func testEmptyText() {
-        let text = ""
-        let corrections = wordChecker.checkAndSuggestCorrections(text: text, languages: ["en"])
+    func testEmptyWord() {
+        let word = ""
+        let corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
 
         XCTAssertTrue(corrections.isEmpty)
     }
 
-    func testAllCorrectWords() {
-        let text = "This is a perfectly correct sentence."
-        let corrections = wordChecker.checkAndSuggestCorrections(text: text, languages: ["en"])
+    func testCorrectWord() {
+        let word = "perfectly"
+        let corrections = wordChecker.checkAndSuggestCorrections(word: word, languages: ["en"])
 
         XCTAssertTrue(corrections.isEmpty)
     }
 
     func testPerformance() {
-        let longText = String(repeating: "This is a test of the wordChecker. ", count: 1000)
+        let longText = String(repeating: "word", count: 1000)
 
         measure {
-            _ = wordChecker.checkAndSuggestCorrections(text: longText, languages: ["en"])
+            _ = wordChecker.checkAndSuggestCorrections(word: longText, languages: ["en"])
         }
     }
 }

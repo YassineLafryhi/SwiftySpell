@@ -27,6 +27,15 @@ internal class SwiftCodesForTests {
             var firstString = "This is a misppeled text"
             firstString = "There is no spelling error in these words: isn't, aren't, wasn't, weren't, don't, doesn't, didn't, hasn't, haven't, hadn't, I'm, you're, they're, we're, he's, she's, it's, I've, you've, they've, I'll, you'll, they'll, I'd, you'd, they'd"
             firstString = "the config is sucessfuly checked"
+            firstString = "This] [book] is/ {very} //good"
+            let nsError = error as NSError
+            fatalError("Unresolved error \\(nsError), \\(nsError.userInfo)")
+            
+            Logger.shared.log("Web Server started at \\(webServer.serverURL ?? URL(string: "http://localhost:8080")!)")
+            
+            var secondString = \"""
+                This is alsoo a text that contains some mistaks
+            \"""
             """
         let misspelledWords = ["misppeled", "sucessfuly"]
         return .init(code: code, misspelledWords: misspelledWords)
@@ -46,6 +55,11 @@ internal class SwiftCodesForTests {
                     }
                 }
             }
+            
+            enum Status: String {
+                case active = "Actve"
+                case inactive = "Inctive"
+            }
             """
         let misspelledWords = [
             "Accesibility",
@@ -55,7 +69,9 @@ internal class SwiftCodesForTests {
             "imdex",
             "Veary",
             "Nessted",
-            "tird"
+            "tird",
+            "Actve",
+            "Inctive"
         ]
         return .init(code: code, misspelledWords: misspelledWords)
     }
@@ -70,6 +86,14 @@ internal class SwiftCodesForTests {
              * This is an exmaple of a multiline comment with some speling mistakes,
              * in diferent lines, that are also dettected.
              */
+            
+            /// This fumction addds two nubres
+            /// - Parameters:
+            ///   - a: The frst numbber to add
+            ///   - b: The second nuber to add
+            func add(a: Int, b: Int) -> Int {
+                retun a + b
+            }
             """
         let misspelledWords = [
             "linne",
@@ -79,7 +103,13 @@ internal class SwiftCodesForTests {
             "speling",
             "exmaple",
             "diferent",
-            "dettected"
+            "dettected",
+            "fumction",
+            "addds",
+            "nubres",
+            "frst",
+            "numbber",
+            "nuber"
         ]
         return .init(code: code, misspelledWords: misspelledWords)
     }
@@ -118,7 +148,7 @@ internal class SwiftCodesForTests {
                     struct TestMannager {}
                 }
 
-                class TestMannagger {}
+                class OthherTestClass {}
             }
             """
         let misspelledWords = [
@@ -129,7 +159,7 @@ internal class SwiftCodesForTests {
             "maintanence",
             "Mannager",
             "Mannager",
-            "Mannagger"
+            "Othher"
         ]
         return .init(code: code, misspelledWords: misspelledWords)
     }
@@ -209,7 +239,60 @@ internal class SwiftCodesForTests {
                     lhs.age < rhs.age
                 }
             }
+            
+            let response = "Not Found"
+            switch response {
+            case "OK":
+                print("Everything is fine")
+            case "Not Found":
+                print("The requested resource was not foundd")
+            default:
+                print("Unknown status")
+            }
+            
+            let json = "{\"keyy\": \"vallue\"}" // Example JSON
+            
+            let message = \"""
+            The output recieved from the server is not correct.
+            Please recheck the endpint and try again.
+            \"""
+            
+            @available(iOS 14.0, *)
+            func someMethod() {
+                #warning("This is not optiimal for performncee")
+            }
+            
+            let message = "An error has occured\nPlease check the input. \tThen retry"
+            
+            Text("Welcomme to the app, \\(userNname)!")
+                .font(.title)
+                .foregroundColor(.red)
+            
+            let query = QueryBuilder().where("userr_name", isEqualTo: "John").limit(10).excecute()
 
+
+            func checkAgge(agee: Int?) {
+                guard let validdAge = age, validdAge > 0 else {
+                    print("Agge must be a positv number.")
+                    return
+                }
+
+                print("The agee is \\(validdAge)")
+            }
+            
+            func registerUser(username: String?, password: String?, email: String?) {
+                guard let valiUsername = username, 
+                      let valdPassword = password, 
+                      let vaiddEmail = email else {
+                    print("All fields must be filled out correctly.")
+                    return
+                }
+
+                // Proceed with user registration
+                print("Registering user with username: \\(validUsername), email: \\(validEmail)")
+            }
+            
+            
             """
         let misspelledWords = ["imdex", "Tenplate", "definate"]
         return .init(code: code, misspelledWords: misspelledWords)

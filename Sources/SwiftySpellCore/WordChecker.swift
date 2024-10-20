@@ -35,8 +35,37 @@ internal class WordChecker {
         }
         return false
     }
+    
+    
+    func checkAndSuggestCorrections(word: String, languages: Set<String>) -> [String: [String]] {
+        var corrections: [String: [String]] = [:]
+        var isMisspelledInAllLanguages = true
+        var allSuggestions: [String] = []
+        
+        if ignoredWords.contains(word) || shouldIgnoreWord(word: word) {
+            return corrections
+        }
+        
+        for language in languages {
+            let result = checkWordSpelling(word, language: language)
+            
+            if !result.isMispelled {
+                isMisspelledInAllLanguages = false
+                break
+            } else {
+                allSuggestions.append(contentsOf: result.suggestionArray)
+            }
+        }
+        
+        if isMisspelledInAllLanguages {
+            corrections[word] = Array(Set(allSuggestions))
+        }
+        
+        return corrections
+    }
 
-    func checkAndSuggestCorrections(text: String, languages: Set<String>) -> [String: [String]] {
+    /*
+    func checkAndSuggestCorrections(word: String, languages: Set<String>) -> [String: [String]] {
         // TODO: Use Hunspell for Linux
         let checker = NSSpellChecker.shared
         var corrections: [String: [String]] = [:]
@@ -83,11 +112,7 @@ internal class WordChecker {
                 return corrections
             }
 
-            if ignoredWords.contains(misspelledWord) || shouldIgnoreWord(word: misspelledWord) {
-                searchRange.location = misspelledWordRange.location + misspelledWordRange.length
-                searchRange.length = text.utf16.count - searchRange.location
-                continue
-            }
+            
 
             var allSuggestions: Set<String> = []
             for language in languages {
@@ -111,6 +136,25 @@ internal class WordChecker {
             searchRange.length = text.utf16.count - searchRange.location
         }
         return corrections
+    }
+    */
+    private func checkWordSpelling(_ word: String, language: String) -> (isMispelled: Bool, suggestionArray: [String]) {
+        let spellChecker = NSSpellChecker.shared
+        
+        let misspelledRange = spellChecker.checkSpelling(of: word,
+                                                         startingAt: 0,
+                                                         language: language,
+                                                         wrap: false,
+                                                         inSpellDocumentWithTag: 0,
+                                                         wordCount: nil)
+        
+        guard misspelledRange.location != NSNotFound else {
+            return (isMispelled: false, suggestionArray: [])
+        }
+        
+        let suggestions = spellChecker.guesses(forWordRange: NSRange(location: 0, length: word.count), in: word, language: language, inSpellDocumentWithTag: 0) ?? []
+        
+        return (isMispelled: true, suggestionArray: suggestions)
     }
     
     func checkAndSuggestCorrectionsWithHunspell(text: String, languages: Set<String>) -> [String: [String]] {
@@ -156,7 +200,7 @@ internal class WordChecker {
         
         let baseDirectory = "\(homeDirectory)/Library/Spelling"
         let affixPath = "\(baseDirectory)/\(languageCode).\(Constants.hunspellAffixFileExtension)"
-        let dictionaryPath = "\(baseDirectory)/\(languageCode).dic"
+        let dictionaryPath = "\(baseDirectory)/\(languageCode).\(Constants.hunspellDictionaryFileExtension)"
         
         guard let affixURL = URL(string: affixPath),
               let dictionaryURL = URL(string: dictionaryPath) else {

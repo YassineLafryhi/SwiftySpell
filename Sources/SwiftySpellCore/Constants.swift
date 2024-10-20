@@ -52,7 +52,7 @@ public class Constants {
           - iOS
         """
 
-    static let delimiters = ",.:-;_!`@"
+    static let delimiters = ",.:-;_!`@/"
     static let blockCommentStart = "/*"
     static let blockCommentEnd = "*/"
     static let singleLineCommentStart = "//"
@@ -65,6 +65,7 @@ public class Constants {
     static let possessiveMarker = "s"
     static let swiftFileExtension = "swift"
     static let hunspellAffixFileExtension = "aff"
+    static let hunspellDictionaryFileExtension = "dic"
     static let regexSymbols = "[.^$*+?()\\[\\]{}|\\\\]"
     static let letSwiftKeyword = "let"
     static let varSwiftKeyword = "var"
@@ -199,7 +200,7 @@ public class Constants {
         "rethrow", "sha512", "bcrypt", "rx", "reactivex", "xcrun",
         "lipo", "xcscheme", "xcarchive", "armv7", "simctl", "otool",
         "iphonesimulator", "appletvos", "interactor", "jwt", "csrf", "iot",
-        "crashlytics", "qr", "mqtt", "hunspell", "uikit", "otp"
+        "crashlytics", "qr", "mqtt", "hunspell", "uikit", "otp", "postgres"
     ]
 
     static let loremIpsumWords = [

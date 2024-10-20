@@ -12,7 +12,7 @@ get_next_version() {
     fi
 
     patch=$((patch + 1))
-    echo "v$major.$minor.$patch"
+    echo "$major.$minor.$patch"
 }
 
 if [ -z "$1" ]; then
@@ -32,7 +32,7 @@ fi
 
 PROJECT_NAME="SwiftySpell"
 BINARY_NAME="swiftyspell"
-ZIP_FILE="$PROJECT_NAME-$VERSION.zip"
+ZIP_FILE="$PROJECT_NAME-v$VERSION.zip"
 
 if [ ! -f "./$BINARY_NAME" ]; then
     echo "Error: $BINARY_NAME not found in the current directory. Please build the project first."
@@ -57,7 +57,7 @@ if [ -z "$RELEASE_NOTES" ]; then
 fi
 
 echo "Creating GitHub release and uploading zip..."
-gh release create $VERSION "$ZIP_FILE" --title "$PROJECT_NAME $VERSION" --notes "$RELEASE_NOTES"
+gh release create $VERSION "$ZIP_FILE" --title "$PROJECT_NAME v$VERSION" --notes "$RELEASE_NOTES"
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to create GitHub release."

@@ -42,12 +42,8 @@ public class Configuration {
     }
 
     init(configFilePath: String) {
-        loadConfiguration(from: configFilePath)
-    }
-
-    private func loadConfiguration(from filePath: String) -> Constants.MessageType {
         do {
-            let fileContents = try String(contentsOfFile: filePath, encoding: .utf8)
+            let fileContents = try String(contentsOfFile: configFilePath, encoding: .utf8)
             if let yaml = try? Yams.load(yaml: fileContents) as? [String: [String]] {
                 languages = Set(yaml["languages"] ?? [Constants.defaultLanguage])
                 rawIgnoreList = yaml["ignore"] ?? []
@@ -56,9 +52,9 @@ public class Configuration {
             }
 
             let result = prepareConfiguration()
-            return result
+            print(Constants.getMessage(result))
         } catch {
-            return .configLoadingError(error.localizedDescription)
+                print(Constants.getMessage(.configLoadingError(error.localizedDescription)))
         }
     }
 

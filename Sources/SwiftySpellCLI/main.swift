@@ -85,9 +85,9 @@ private func loadConfig(_ directoryOrSwiftFilePath: String) {
     let globalConfigFilePath = homeDirectory.appendingPathComponent(Constants.configFileName).path
 
     if fileManager.fileExists(atPath: projectConfigFilePath) {
-        swiftySpell = SwiftySpell(configFilePath: projectConfigFilePath)
+        swiftySpell.setConfig(configFilePath: projectConfigFilePath)
     } else if fileManager.fileExists(atPath: globalConfigFilePath) {
-        swiftySpell = SwiftySpell(configFilePath: globalConfigFilePath)
+            swiftySpell.setConfig(configFilePath: globalConfigFilePath)
     } else {
         Utilities.printWarning(Utilities.getMessage(.configFileNotFound(Constants.configFileName)))
     }

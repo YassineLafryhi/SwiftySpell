@@ -13,8 +13,8 @@ import SwiftParserDiagnostics
 
 public class SwiftySpell {
     let fileManager = FileManager.default
-    public let config: Configuration
-    let checker: WordChecker
+    public var config: Configuration?
+    var checker: WordChecker?
     var withFix = false
     public var misspelledWordsNumber = 0
     public var correctedWordsNumber = 0
@@ -22,20 +22,22 @@ public class SwiftySpell {
     public typealias CompletionHandler = () -> Void
     private var completionHandler: CompletionHandler?
 
-    public init(configFilePath: String) {
-        config = Configuration(configFilePath: configFilePath)
-        checker = WordChecker(
-            ignoredWords: config.ignore,
-            ignoredPatternsOfWords: config.ignoredPatternsOfWords,
-            ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
-    }
-
     public init() {
-        config = Configuration()
-        checker = WordChecker(
-            ignoredWords: config.ignore,
-            ignoredPatternsOfWords: config.ignoredPatternsOfWords,
-            ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
+    }
+    
+    public func setConfig(configFilePath: String? = nil) {
+        if let configFilePath = configFilePath {
+            self.config = Configuration(configFilePath: configFilePath)
+        } else {
+            self.config = Configuration()
+        }
+        
+        if let config = self.config {
+            self.checker = WordChecker(
+                ignoredWords: config.ignore,
+                ignoredPatternsOfWords: config.ignoredPatternsOfWords,
+                ignoredPatternsOfFilesOrDirectories: config.ignoredPatternsOfFilesOrDirectories)
+        }
     }
 
     public func getCurrentVersion() -> String {
@@ -233,6 +235,10 @@ public class SwiftySpell {
     }
 
     private func shouldExclude(file: URL) -> Bool {
+        guard let config = self.config else {
+            return false
+        }
+        
         for pattern in config.ignoredPatternsOfFilesOrDirectories
             where file.lastPathComponent.range(of: pattern, options: .regularExpression) != nil {
             return true
@@ -246,8 +252,26 @@ public class SwiftySpell {
     }
 
     private func shouldExclude(directory: URL) -> Bool {
-        // TODO: Use config.ignoredPatternsOfFilesOrDirectories
-        config.excludedDirectories.contains { directory.path.contains("\($0)") }
+        guard let config = self.config else {
+            return false
+        }
+        
+        let directoryPath = directory.path
+        
+        if config.excludedDirectories.contains(where: { directoryPath.hasSuffix($0) }) {
+            return true
+        }
+        
+        for pattern in config.ignoredPatternsOfFilesOrDirectories {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: []) {
+                let range = NSRange(location: 0, length: directoryPath.utf16.count)
+                if regex.firstMatch(in: directoryPath, options: [], range: range) != nil {
+                    return true
+                }
+            }
+        }
+        
+        return false
     }
 
     private func processFile(_ url: URL) throws {
@@ -495,27 +519,29 @@ public class SwiftySpell {
                 sourceLocationConverter: sourceLocationConverter)
         }
 
-        if config.rules.contains(.supportOneLineComment) {
-            for (comment, line) in visitor.oneLineComments {
-                processSpelling(
-                    for: comment,
-                    startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
-                    filePath: filePath,
-                    sourceLocationConverter: sourceLocationConverter)
-            }
-        }
-
-        if config.rules.contains(.supportMultiLineComment) {
-            for multiLineComment in visitor.multiLineComments {
-                for (commentLine, line) in multiLineComment {
-                    processSpelling(
-                        for: commentLine,
-                        startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
-                        filePath: filePath,
-                        sourceLocationConverter: sourceLocationConverter)
+            if let config = self.config {
+                if config.rules.contains(.supportOneLineComment) {
+                    for (comment, line) in visitor.oneLineComments {
+                        processSpelling(
+                            for: comment,
+                            startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
+                            filePath: filePath,
+                            sourceLocationConverter: sourceLocationConverter)
+                    }
+                }
+                
+                if config.rules.contains(.supportMultiLineComment) {
+                    for multiLineComment in visitor.multiLineComments {
+                        for (commentLine, line) in multiLineComment {
+                            processSpelling(
+                                for: commentLine,
+                                startLocation: .init(line: line, column: 1, offset: 0, file: filePath),
+                                filePath: filePath,
+                                sourceLocationConverter: sourceLocationConverter)
+                        }
+                    }
                 }
             }
-        }
     }
 
     private func splitCamelCaseString(_ input: String) -> [String] {
@@ -554,6 +580,9 @@ public class SwiftySpell {
     private func cleanString(_ input: String) -> String {
         input.remove(Constants.newLineCharacter)
             .remove(Constants.tabCharacter)
+            .remove("(")
+            .remove(")")
+            .remove(",")
     }
 
     private func isValidURL(_ urlString: String) -> Bool {
@@ -583,9 +612,11 @@ public class SwiftySpell {
 
         var string = string.trimmingCharacters(in: .whitespaces)
 
-        if config.rules.contains(.ignoreUrls), isValidURL(string) {
-            return
-        }
+            if let config = self.config {
+                if config.rules.contains(.ignoreUrls), isValidURL(string) {
+                    return
+                }
+            }
         string = cleanString(string)
 
         if string.contains(Constants.spaceCharacter) {
@@ -598,6 +629,8 @@ public class SwiftySpell {
                 for part in wordParts {
                     let elements = splitStringByDelimiters(part)
                     for element in elements {
+                        var element = element
+                        element = element.replace(Constants.quoteCharacter, Constants.emptyString)
                         if isEnglishContraction(element) {
                             continue
                         }
@@ -628,11 +661,16 @@ public class SwiftySpell {
             word = word.remove(Constants.quoteCharacter)
             
             if word.isEmpty { return }
+            
+            guard let config = self.config,
+            let checker = self.checker else {
+                return
+            }
 
             var isMisspelledWordCorrected = false
             // TODO: Complete integrating checkAndSuggestCorrectionsWithHunspell
             let corrections = checker.checkAndSuggestCorrections(
-                text: word, languages: config.languages)
+                word: word, languages: config.languages)
             if !corrections.isEmpty {
                 for (misspelledWord, suggestions) in corrections {
                     if !withFix, suggestions.isEmpty {
@@ -721,21 +759,24 @@ public class SwiftySpell {
         }
         
         let lowercasedWord = word.lowercased()
-        
-        if lowercasedWord.hasSuffix(Constants.negativeContraction) {
-            let verbPart = String(lowercasedWord.dropLast(3))
-           
-            return Constants.validVerbs.contains(verbPart)
-        }
-        
-        if Constants.pronounContractions.contains(where: lowercasedWord.hasSuffix) {
-            let pronounPart = String(lowercasedWord.dropLast(2))
-           
-            return Constants.validPronouns.contains(pronounPart)
-        }
-        
+
         if Constants.specificContractions.contains(lowercasedWord) {
             return true
+        }
+
+        for pronoun in Constants.validPronouns {
+            for contraction in Constants.pronounContractions {
+                if lowercasedWord == pronoun + contraction {
+                    return true
+                }
+            }
+        }
+
+        for verb in Constants.validVerbs {
+            let contractionForm = verb.hasSuffix("n") ? verb + "t" : verb + Constants.negativeContraction
+            if lowercasedWord == contractionForm {
+                return true
+            }
         }
 
         return false
