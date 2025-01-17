@@ -243,7 +243,7 @@ internal class CodeVisitor: SyntaxVisitor {
 
         for line in lines {
             lineNumber += 1
-            if line.contains(Constants.singleLineCommentStart) {
+            if line.starts(with: Constants.singleLineCommentStart) {
                 var comment = extractOnlyCommentFromLine(line) ?? ""
                 if line.hasPrefix("\(Constants.singleLineCommentStart)\(Constants.spaceCharacter)") {
                     comment = String(line.dropFirst(3))

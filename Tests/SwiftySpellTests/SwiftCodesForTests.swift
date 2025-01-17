@@ -27,6 +27,7 @@ internal class SwiftCodesForTests {
     public static func forStrings() -> SwiftCodesForTests {
         let code = """
             var firstString = "This is a misppeled text"
+            firstString = "https://console.firebase.google.com"
             firstString = "There is no spelling error in these words: isn't, aren't, wasn't, weren't, don't, doesn't, didn't, hasn't, haven't, hadn't, I'm, you're, they're, we're, he's, she's, it's, I've, you've, they've, I'll, you'll, they'll, I'd, you'd, they'd"
             firstString = "the config is sucessfuly checked"
             firstString = "This] [book] is/ {very} //good"
@@ -39,7 +40,7 @@ internal class SwiftCodesForTests {
                 This is alsoo a text that contains some mistaks
             \"""
             """
-        let misspelledWords = ["misppeled", "sucessfuly"]
+        let misspelledWords = ["misppeled", "sucessfuly", "mistaks", "alsoo"]
         return .init(code: code, misspelledWords: misspelledWords)
     }
 
@@ -81,6 +82,8 @@ internal class SwiftCodesForTests {
     public static func forComments() -> SwiftCodesForTests {
         let code = """
             // This is a one linne comment with some speling mistakes
+
+            // don't, shouldn't, can't, couldn't
 
             // This is a annother one line comment with morre spelling mistakes
 
@@ -296,7 +299,26 @@ internal class SwiftCodesForTests {
 
 
             """
-        let misspelledWords = ["imdex", "Tenplate", "definate"]
+        let misspelledWords = [
+            "Agge",
+            "Agge",
+            "Nname",
+            "Welcomme",
+            "arabic",
+            "definate",
+            "foundd",
+            "imdex",
+            "occured",
+            "optiimal",
+            "performncee",
+            "positv",
+            "recieved",
+            "vaidd",
+            "vald",
+            "vali",
+            "validd",
+            "validd"
+        ]
         return .init(code: code, misspelledWords: misspelledWords)
     }
 }

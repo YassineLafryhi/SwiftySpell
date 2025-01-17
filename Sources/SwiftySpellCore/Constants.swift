@@ -9,7 +9,7 @@ import Foundation
 
 public class Constants {
     public static let name = "SwiftySpell"
-    public static let currentVersion = "0.9.7"
+    public static let currentVersion = "0.9.8"
     public static let configFileName = ".swiftyspell.yml"
     public static let latestReleaseURL = "https://api.github.com/repos/YassineLafryhi/SwiftySpell/releases/latest"
 
@@ -52,7 +52,7 @@ public class Constants {
           - iOS
         """
 
-    static let delimiters = ",.:-;_!`@/"
+    static let delimiters = ",.:-;_!`@/()[]{}\\"
     static let blockCommentStart = "/*"
     static let blockCommentEnd = "*/"
     static let singleLineCommentStart = "//"
@@ -209,7 +209,7 @@ public class Constants {
         "ipv6", "yyyy", "ss", "md", "js", "cer", "ttf", "otf",
         "ws", "wss", "iphoneos", "utf", "utf8", "utf16",
         "ios", "dylib", "swiftlang", "xcodeproj", "xcworkspace", "swiftgen",
-        "swiftlint", "swiftformat", "swiftyspell",
+        "swiftlint", "swiftformat", "swiftyspell", "swinject",
         "rswift", "xcconfig", "sourcery", "xlinker", "xcframework", "iboutlet",
         "ibinspectable", "ibdesignable", "xcframeworks", "sdk", "protobuf", "alamofire",
         "grpc", "momd", "moya", "utc", "crlf", "deinitialized",

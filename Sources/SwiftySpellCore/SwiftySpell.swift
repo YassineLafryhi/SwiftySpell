@@ -584,9 +584,6 @@ public class SwiftySpell {
     private func cleanString(_ input: String) -> String {
         input.remove(Constants.newLineCharacter)
             .remove(Constants.tabCharacter)
-            .remove("(")
-            .remove(")")
-            .remove(",")
     }
 
     private func isValidURL(_ urlString: String) -> Bool {
@@ -643,7 +640,8 @@ public class SwiftySpell {
                     for element in elements {
                         var element = element
                         element = element.replace(Constants.quoteCharacter, Constants.emptyString)
-                        if isEnglishContraction(element) {
+                        element = cleanString(element)
+                        if element.isEmpty || isEnglishContraction(element) {
                             continue
                         }
                         currentWordColumn = getColumn(
@@ -671,6 +669,7 @@ public class SwiftySpell {
             word = word.remove("\(Constants.possessiveApostrophe)\(Constants.possessiveMarker)")
             word = word.remove(Constants.possessiveApostrophe)
             word = word.remove(Constants.quoteCharacter)
+            word = word.remove("\n")
 
             if word.isEmpty {
                 return
